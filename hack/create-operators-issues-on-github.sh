@@ -1,11 +1,18 @@
 #!/bin/bash
 
+#
+# This script requires hub: brew install hub
+# To authenticate you have to
+# export GITHUB_USER=your_user_name
+# export GITHUB_PASSWORD=your_auth_token
+#
+#
 # Create a issues related in repository.
-# 
+#
 # This script should be run from the project directory in which the issue is to be created.
-# 
+#
 # This file required the file with list of operators
-# 
+#
 # AIRFLOW-4966;Cloud AutoML NL Classification;https://cloud.google.com/natural-language/automl/docs/;https://googleapis.github.io/google-cloud-python/latest/automl/index.html
 # AIRFLOW-4967;Cloud AutoML NL Entity Extraction;https://cloud.google.com/natural-language/automl/entity-analysis/docs/;https://googleapis.github.io/google-cloud-python/latest/automl/index.html
 # AIRFLOW-4968;Cloud AutoML NL Sentiment; https://cloud.google.com/natural-language/automl/sentiment/docs/;https://googleapis.github.io/google-cloud-python/latest/automl/index.html
@@ -14,7 +21,7 @@
 # AIRFLOW-4971;Google Display & Video 360;https://developers.google.com/bid-manager/guides/getting-started-api;https://developers.google.com/bid-manager/guides/getting-started-api
 # AIRFLOW-4972;Google Search Ads 360;https://developers.google.com/search-ads/;https://developers.google.com/resources/api-libraries/documentation/dfareporting/v3.3/python/latest/
 # AIRFLOW-4973;Cloud Data Fusion Pipeline;https://cloud.google.com/data-fusion/docs/;https://developers.google.com/apis-explorer/#search/data%20fusion/datafusion/v1beta1/
-# 
+#
 set -Eeuo pipefail
 
 if [ "$#" -lt 1 ]; then
