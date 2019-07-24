@@ -70,10 +70,10 @@ class TypeHintParser:
     @staticmethod
     def _fix_incorrect_typehints(text: str) -> str:
         # Example value: dict[str -> str]
-        match_invalid_dict = re.match(r"^dict\[\s*(.+)\s+->\s+(.+)\s*\]$", text)
+        match_invalid_dict = re.match(r"^[Dd]ict\[\s*(.+)\s+->\s+(.+)\s*\]$", text)
         if match_invalid_dict:
             # Result: Dict[str, str]
-            return f"Dict[{match_invalid_dict.group(1)}, {match_invalid_dict.group(1)}]"
+            return f"Dict[{match_invalid_dict.group(1)}, {match_invalid_dict.group(2)}]"
         return text
 
     def _parse(self) -> None:

@@ -37,6 +37,18 @@ class TestTypeHintParser(unittest.TestCase):
             typehint_parser.parse_typehint("Dict[str, str]"),
         )
 
+    def test_should_fix_incorrect_type(self):
+        self.assertEqual(
+            TypeBrick(
+                kind="Dict",
+                indexes=[
+                    TypeBrick(kind="str", indexes=[]),
+                    TypeBrick(kind="float", indexes=[]),
+                ],
+            ),
+            typehint_parser.parse_typehint("dict[str -> float]"),
+        )
+
     @parameterized.expand(
         [
             (TypeBrick(kind="str", indexes=[]), "str"),

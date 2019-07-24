@@ -23,14 +23,13 @@ def parse_method(name: str, method: Callable) -> ActionInfo:
             desc = section.body  # type: ignore
         elif section.kind.lower() in ("args", "arguments", "parameters"):
             for arg in section.body:
-                if not isinstance(arg, FieldBrick):
-                    raise Exception
+                assert isinstance(arg, FieldBrick)
                 args[arg.name] = ParameterInfo(
                     name=arg.name, kind=arg.type_brick, desc=arg.desc[0].body
                 )
         elif section.kind.lower() in ("return", "returns"):
-            if not isinstance(section.body, list) or len(section.body) != 1:
-                raise Exception
+            assert isinstance(section.body, list)
+            assert len(section.body) == 1
             assert isinstance(section.body[0], FieldBrick)
             field: FieldBrick = section.body[0]
             return_kind = field.type_brick

@@ -268,7 +268,7 @@ class GoogleDocstringParser:  # pylint: disable=too-few-public-methods
                     sentence += f"\n{line}"
                 else:
                     sentence += " " + line.strip()
-        if sentence is not None and sentence != "":
+        if sentence:
             result.append(sentence)
         return result
 
