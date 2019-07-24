@@ -3,8 +3,7 @@
 """Main module."""
 import logging
 
-from airflow_munchkin import client_parser
-
+from airflow_munchkin import client_parser, block_generator
 from airflow_munchkin.client_parser.infos import ClientInfo
 from airflow_munchkin.integration import Integration
 
@@ -19,7 +18,9 @@ def main() -> None:
     )
 
     client_info: ClientInfo = client_parser.parse_cloud_client(integration_info)
-    print(client_info)
+    block_generator.generate_file_blocks(
+        client_info=client_info, integration=integration_info
+    )
 
 
 if __name__ == "__main__":
