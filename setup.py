@@ -11,7 +11,13 @@ with open("README.rst") as readme_file:
 with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
-requirements = ["Click>=6.0"]
+requirements = [
+    "apache-airflow==1.10.4rc3",
+    "Click>=6.0",
+    "google-cloud-automl==0.4.0",
+    "google-cloud-redis==0.2.1",
+    "tzlocal<2.0.0.0,>=1.5.0.0",
+]
 
 setup_requirements = ["pytest-runner"]
 
