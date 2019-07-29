@@ -15,20 +15,50 @@ from airflow_munchkin.client_parser.infos import ActionInfo, ClientInfo
 from airflow_munchkin.integration import Integration
 
 
+def generate_ctor_method_block(
+    client_info: ClientInfo, integration: Integration
+) -> MethodBlock:
+    args = {
+        "gcp_conn_id": ParameterBlock(name="gcp_conn_id", kind=TypeBrick("str")),
+        "delegate_to": ParameterBlock(name="delegate_to", kind=TypeBrick("str")),
+    }
+    method_block = MethodBlock(
+        name="__init__",
+        desc=client_info.ctor_method.desc,
+        args=args,
+        return_kind=TypeBrick("None"),
+        return_desc=None,
+        code_blocks=[
+            CodeBlock(
+                template_name="super_call.py.tpl",
+                template_params={"args": list(args.keys()), "kwargs": {}},
+            ),
+            CodeBlock(
+                template_name="set_field.py.tpl",
+                template_params={
+                    "field_name": "_client",
+                    "field_type": integration.client_type_brick,
+                    "field_value": "None",
+                },
+            ),
+        ],
+    )
+    return method_block
+
+
 def generate_get_conn_method_block(integration: Integration) -> MethodBlock:
-    client_type = TypeBrick(integration.client_path)
     method_block = MethodBlock(
         name="get_conn",
         desc=[
             f"Retrieves client library object that allow access to {integration.service_name} service."
         ],
         args={},
-        return_kind=client_type,
+        return_kind=integration.client_type_brick,
         return_desc=[f"{integration.service_name} client object."],
         code_blocks=[
             CodeBlock(
                 template_name="get_conn_body.py.tpl",
-                template_params={"client": client_type},
+                template_params={"client": integration.client_type_brick},
             )
         ],
     )
@@ -81,7 +111,7 @@ def generate_method_block(action_info: ActionInfo) -> MethodBlock:
 def generate_class_block(
     client_info: ClientInfo, integration: Integration
 ) -> ClassBlock:
-    ctor_method = generate_ctor_method(client_info)
+    ctor_method = generate_ctor_method_block(client_info, integration)
     get_conn_method = generate_get_conn_method_block(integration)
     hook_methods = [ctor_method, get_conn_method]
 
@@ -94,18 +124,6 @@ def generate_class_block(
         methods_blocks=hook_methods,
     )
     return class_block
-
-
-def generate_ctor_method(client_info):
-    ctor_method = MethodBlock(
-        name="__init__",
-        desc=client_info.ctor_method.desc,
-        args=client_info.ctor_method.args,
-        return_kind=client_info.ctor_method.return_kind,
-        return_desc=client_info.ctor_method.return_desc,
-        code_blocks=[],
-    )
-    return ctor_method
 
 
 def create_file_block(client_info: ClientInfo, integration: Integration) -> FileBlock:

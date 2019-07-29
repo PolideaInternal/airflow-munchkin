@@ -61,49 +61,6 @@ class TestGenerateMethodBlock(TestCase):
         )
 
 
-class TestGenerateCtorMethod(TestCase):
-    def test_generate_ctor_method(self):
-        ctor_method = self._create_action_info("CTOR_")
-
-        client_info = ClientInfo(
-            ctor_method=ctor_method, path_methods={}, action_methods={}
-        )
-        method_block = hook_generator.generate_ctor_method(client_info=client_info)
-        self.assertEqual(
-            MethodBlock(
-                name="__init__",
-                desc=["CTOR_DESC_A", "CTOR_DESC_B"],
-                args={
-                    "CTOR_ARG_A": ParameterInfo(
-                        name="CTOR_ARG_A",
-                        kind=TypeBrick(kind="str", indexes=[]),
-                        desc=["CTOR_DESC_C", "CTOR_DESC_D"],
-                    )
-                },
-                return_kind=TypeBrick(kind="float", indexes=[]),
-                return_desc=["CTOR_DESC_E", "CTOR_DESC_F"],
-                code_blocks=[],
-            ),
-            method_block,
-        )
-
-    @staticmethod
-    def _create_action_info(prefix: str):
-        return ActionInfo(
-            name=f"{prefix}NAME",
-            desc=[f"{prefix}DESC_A", f"{prefix}DESC_B"],
-            args={
-                f"{prefix}ARG_A": ParameterInfo(
-                    name=f"{prefix}ARG_A",
-                    kind=TypeBrick("str"),
-                    desc=[f"{prefix}DESC_C", f"{prefix}DESC_D"],
-                )
-            },
-            return_kind=TypeBrick("float"),
-            return_desc=[f"{prefix}DESC_E", f"{prefix}DESC_F"],
-        )
-
-
 class TestGenerateGetConnMethodBlock(TestCase):
     def test_generate_method_block(self):
         integration = Integration(
@@ -151,9 +108,63 @@ class TestGenerateGetConnMethodBlock(TestCase):
         )
 
 
+class TestGenerateCtorMethodBlock(TestCase):
+    def test_generate_method_block(self):
+        client_info = mock.MagicMock(**{"ctor_method.desc": ["DESC_A", "DESC_B"]})
+        integration = Integration(
+            service_name="SERVICE_NAME",
+            class_prefix="CLASS_PREFIX",
+            file_prefix="FILE_PREFFIX",
+            client_path="CLOENT_PATH",
+        )
+        method_block = hook_generator.generate_ctor_method_block(
+            client_info, integration
+        )
+        self.assertEqual(
+            MethodBlock(
+                name="__init__",
+                desc=["DESC_A", "DESC_B"],
+                args={
+                    "gcp_conn_id": ParameterBlock(
+                        name="gcp_conn_id",
+                        kind=TypeBrick(kind="str", indexes=[]),
+                        desc=None,
+                        default_value=None,
+                    ),
+                    "delegate_to": ParameterBlock(
+                        name="delegate_to",
+                        kind=TypeBrick(kind="str", indexes=[]),
+                        desc=None,
+                        default_value=None,
+                    ),
+                },
+                return_kind=TypeBrick(kind="None", indexes=[]),
+                return_desc=None,
+                code_blocks=[
+                    CodeBlock(
+                        template_name="super_call.py.tpl",
+                        template_params={
+                            "args": ["gcp_conn_id", "delegate_to"],
+                            "kwargs": {},
+                        },
+                    ),
+                    CodeBlock(
+                        template_name="set_field.py.tpl",
+                        template_params={
+                            "field_name": "_client",
+                            "field_type": TypeBrick(kind="CLOENT_PATH", indexes=[]),
+                            "field_value": "None",
+                        },
+                    ),
+                ],
+            ),
+            method_block,
+        )
+
+
 class TestGenerateClassBlock(TestCase):
     @mock.patch(
-        "airflow_munchkin.block_generator.hook_generator.generate_ctor_method",
+        "airflow_munchkin.block_generator.hook_generator.generate_ctor_method_block",
         return_value="METHOD_CTOR",
     )
     @mock.patch(
@@ -168,7 +179,7 @@ class TestGenerateClassBlock(TestCase):
         self,
         mock_generate_method_block,
         mock_generate_get_conn_method_block,
-        mock_generate_ctor_method,
+        mock_generate_ctor_method_block,
     ):
         integration = Integration(
             service_name="SERVICE_NAME",
@@ -196,7 +207,9 @@ class TestGenerateClassBlock(TestCase):
             class_block,
         )
         mock_generate_method_block.assert_any_call(update_instance_method)
-        mock_generate_ctor_method.assert_called_once_with(client_info)
+        mock_generate_ctor_method_block.assert_called_once_with(
+            client_info, integration
+        )
 
     @staticmethod
     def _create_action_info(prefix: str):

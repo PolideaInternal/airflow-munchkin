@@ -12,7 +12,7 @@ class CodeBlock(NamedTuple):
 class ParameterBlock(NamedTuple):
     name: str
     kind: Optional[TypeBrick]
-    desc: Optional[List[str]]
+    desc: Optional[List[str]] = None
     default_value: Optional[str] = None
 
 
