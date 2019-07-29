@@ -14,6 +14,7 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO)
 
     integration_info: Integration = Integration(
+        service_name="Cloud Memorystore",
         class_prefix="CloudMemorystore",
         file_prefix="gcp_cloud_memorystore",
         client_path="google.cloud.redis_v1.CloudRedisClient",

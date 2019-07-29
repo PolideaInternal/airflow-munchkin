@@ -104,19 +104,74 @@ class TestGenerateCtorMethod(TestCase):
         )
 
 
+class TestGenerateGetConnMethodBlock(TestCase):
+    def test_generate_method_block(self):
+        integration = Integration(
+            service_name="SERVICE_NAME",
+            class_prefix="CLASS_PREFIX",
+            file_prefix="FILE_PREFFIX",
+            client_path="CLOENT_PATH",
+        )
+        method_block = hook_generator.generate_get_conn_method_block(integration)
+        self.assertEqual(
+            MethodBlock(
+                name="get_conn",
+                desc=[
+                    "Retrieves client library object that allow access to SERVICE_NAME service."
+                ],
+                args={},
+                return_kind=TypeBrick(kind="CLOENT_PATH", indexes=[]),
+                return_desc=["SERVICE_NAME client object."],
+                code_blocks=[
+                    CodeBlock(
+                        template_name="get_conn_body.py.tpl",
+                        template_params={
+                            "client": TypeBrick(kind="CLOENT_PATH", indexes=[])
+                        },
+                    )
+                ],
+            ),
+            method_block,
+        )
+
+    @staticmethod
+    def _create_action_info(prefix: str):
+        return ActionInfo(
+            name=f"{prefix}NAME",
+            desc=[f"{prefix}DESC_A", f"{prefix}DESC_B"],
+            args={
+                f"{prefix}ARG_A": ParameterInfo(
+                    name=f"{prefix}ARG_A",
+                    kind=TypeBrick("str"),
+                    desc=[f"{prefix}DESC_C", f"{prefix}DESC_D"],
+                )
+            },
+            return_kind=TypeBrick("float"),
+            return_desc=[f"{prefix}DESC_E", f"{prefix}DESC_F"],
+        )
+
+
 class TestGenerateClassBlock(TestCase):
     @mock.patch(
         "airflow_munchkin.block_generator.hook_generator.generate_ctor_method",
         return_value="METHOD_CTOR",
     )
     @mock.patch(
+        "airflow_munchkin.block_generator.hook_generator.generate_get_conn_method_block",
+        return_value="METHOD_GET_CONN",
+    )
+    @mock.patch(
         "airflow_munchkin.block_generator.hook_generator.generate_method_block",
         return_value="METHOD_A",
     )
     def test_generate_class_block(
-        self, mock_generate_method_block, mock_generate_ctor_method
+        self,
+        mock_generate_method_block,
+        mock_generate_get_conn_method_block,
+        mock_generate_ctor_method,
     ):
         integration = Integration(
+            service_name="SERVICE_NAME",
             class_prefix="CLASS_PREFIX",
             file_prefix="FILE_PREFFIX",
             client_path="CLOENT_PATH",
@@ -136,7 +191,7 @@ class TestGenerateClassBlock(TestCase):
             ClassBlock(
                 name="CLASS_PREFIXHook",
                 extend_class="airflow.contrib.hooks.gcp_api_base_hook.GoogleCloudBaseHook",
-                methods_blocks=["METHOD_CTOR", "METHOD_A"],
+                methods_blocks=["METHOD_CTOR", "METHOD_GET_CONN", "METHOD_A"],
             ),
             class_block,
         )
@@ -174,6 +229,7 @@ class TestCreateFileBlock(TestCase):
     ):
         client_info = "CLIENT_INFO"
         integration = Integration(
+            service_name="SERVICE_NAME",
             class_prefix="CLASS_PREFIX",
             file_prefix="FILE_PREFFIX",
             client_path="CLOENT_PATH",

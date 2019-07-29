@@ -10,8 +10,29 @@ from airflow_munchkin.block_generator.blocks import (
     FileBlock,
     ParameterBlock,
 )
+from airflow_munchkin.client_parser.docstring_parser.bricks import TypeBrick
 from airflow_munchkin.client_parser.infos import ActionInfo, ClientInfo
 from airflow_munchkin.integration import Integration
+
+
+def generate_get_conn_method_block(integration: Integration) -> MethodBlock:
+    client_type = TypeBrick(integration.client_path)
+    method_block = MethodBlock(
+        name="get_conn",
+        desc=[
+            f"Retrieves client library object that allow access to {integration.service_name} service."
+        ],
+        args={},
+        return_kind=client_type,
+        return_desc=[f"{integration.service_name} client object."],
+        code_blocks=[
+            CodeBlock(
+                template_name="get_conn_body.py.tpl",
+                template_params={"client": client_type},
+            )
+        ],
+    )
+    return method_block
 
 
 def generate_method_block(action_info: ActionInfo) -> MethodBlock:
@@ -61,7 +82,8 @@ def generate_class_block(
     client_info: ClientInfo, integration: Integration
 ) -> ClassBlock:
     ctor_method = generate_ctor_method(client_info)
-    hook_methods = [ctor_method]
+    get_conn_method = generate_get_conn_method_block(integration)
+    hook_methods = [ctor_method, get_conn_method]
 
     for info in client_info.action_methods.values():
         method_block = generate_method_block(info)
