@@ -2,12 +2,12 @@
 from abc import ABC
 
 from airflow_munchkin.client_parser.docstring_parser.bricks import TypeBrick
-from airflow_munchkin.client_parser.infos import ParameterInfo
 from airflow_munchkin.block_generator.blocks import (
     FileBlock,
     CodeBlock,
     MethodBlock,
     ClassBlock,
+    ParameterBlock,
 )
 
 
@@ -38,9 +38,9 @@ class BlockVisitor(ABC):
         for method_block in class_block.methods_blocks:
             self.visit_method(method_block)
 
-    def visit_parameter(self, parameter_info: ParameterInfo) -> None:
-        if parameter_info.kind:
-            self.visit_type(parameter_info.kind)
+    def visit_parameter(self, parameter_block: ParameterBlock) -> None:
+        if parameter_block.kind:
+            self.visit_type(parameter_block.kind)
 
     def visit_type(self, type_element: TypeBrick) -> None:
         if type_element.indexes:

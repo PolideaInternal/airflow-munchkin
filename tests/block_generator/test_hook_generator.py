@@ -7,6 +7,7 @@ from airflow_munchkin.block_generator.blocks import (
     MethodBlock,
     ClassBlock,
     FileBlock,
+    ParameterBlock,
 )
 from airflow_munchkin.client_parser.docstring_parser.bricks import TypeBrick
 from airflow_munchkin.client_parser.infos import ActionInfo, ParameterInfo, ClientInfo
@@ -32,7 +33,7 @@ class TestGenerateMethodBlock(TestCase):
                 name="NAME",
                 desc=["DESC_A", "DESC_B"],
                 args={
-                    "ARG_A": ParameterInfo(
+                    "ARG_A": ParameterBlock(
                         name="ARG_A",
                         kind=TypeBrick(kind="str", indexes=[]),
                         desc=["DESC_C", "DESC_D"],

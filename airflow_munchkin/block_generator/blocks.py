@@ -2,7 +2,6 @@
 from typing import NamedTuple, List, Dict, Any, Set, Optional
 
 from airflow_munchkin.client_parser.docstring_parser.bricks import TypeBrick
-from airflow_munchkin.client_parser.infos import ParameterInfo
 
 
 class CodeBlock(NamedTuple):
@@ -10,10 +9,17 @@ class CodeBlock(NamedTuple):
     template_params: Dict[str, Any]
 
 
+class ParameterBlock(NamedTuple):
+    name: str
+    kind: Optional[TypeBrick]
+    desc: Optional[List[str]]
+    default_value: Optional[str] = None
+
+
 class MethodBlock(NamedTuple):
     name: str
     desc: Optional[List[str]]
-    args: Dict[str, ParameterInfo]
+    args: Dict[str, ParameterBlock]
     return_kind: Optional[TypeBrick]
     return_desc: Optional[List[str]]
     code_blocks: List[CodeBlock]

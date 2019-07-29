@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import List
+from typing import List, Dict
 
 from airflow_munchkin.block_generator import imports_statement_gather
 from airflow_munchkin.block_generator.blocks import (
@@ -8,6 +8,7 @@ from airflow_munchkin.block_generator.blocks import (
     MethodBlock,
     CodeBlock,
     FileBlock,
+    ParameterBlock,
 )
 from airflow_munchkin.client_parser.infos import ActionInfo, ClientInfo
 from airflow_munchkin.integration import Integration
@@ -15,10 +16,20 @@ from airflow_munchkin.integration import Integration
 
 def generate_method_block(action_info: ActionInfo) -> MethodBlock:
     blocks: List[CodeBlock] = []
+    args: Dict[str, ParameterBlock] = {}
+    for arg in action_info.args.values():
+        kind = arg.kind
+        default_value = None
+        if kind and kind.is_optional:
+            kind = kind.indexes[0]
+            default_value = "None"
+        args[arg.name] = ParameterBlock(
+            name=arg.name, kind=kind, desc=arg.desc, default_value=default_value
+        )
     method_block = MethodBlock(
         name=action_info.name,
         desc=action_info.desc,
-        args=action_info.args,
+        args=args,
         return_kind=action_info.return_kind,
         return_desc=action_info.return_desc,
         code_blocks=blocks,
@@ -51,6 +62,7 @@ def generate_class_block(
 ) -> ClassBlock:
     ctor_method = generate_ctor_method(client_info)
     hook_methods = [ctor_method]
+
     for info in client_info.action_methods.values():
         method_block = generate_method_block(info)
         hook_methods.append(method_block)

@@ -1,11 +1,6 @@
 {% macro arguments_list(arguments) -%}
     {% for name, info in arguments.items() -%}
-        {{ name }}:
-        {% if info.kind.is_optional -%}
-            {{ info.kind.indexes[0].short_form }} = None
-        {% else %}
-            {{ info.kind.short_form }}
-        {% endif %}
+        {{ name }}: {{ info.kind.short_form }}{% if info.default_value %} = {{ info.default_value }}{% endif %}
         {% if not loop.last -%}, {% endif %}
     {% endfor %}
 {% endmacro %}
