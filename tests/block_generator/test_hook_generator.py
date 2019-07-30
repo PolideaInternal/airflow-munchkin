@@ -10,12 +10,50 @@ from airflow_munchkin.block_generator.blocks import (
     ParameterBlock,
 )
 from airflow_munchkin.client_parser.docstring_parser.bricks import TypeBrick
-from airflow_munchkin.client_parser.infos import ActionInfo, ParameterInfo, ClientInfo
+from airflow_munchkin.client_parser.infos import (
+    ActionInfo,
+    ParameterInfo,
+    ClientInfo,
+    PathInfo,
+)
 from airflow_munchkin.integration import Integration
 
 
 class TestGenerateMethodBlock(TestCase):
-    def test_generate_method_block(self):
+    @mock.patch(
+        "airflow_munchkin.block_generator.hook_generator.convert_path_"
+        "parameter_block_to_individual_parameters",
+        return_value=(
+            {
+                "location": ParameterBlock(
+                    name="location",
+                    kind=TypeBrick(kind="str", indexes=[]),
+                    desc=["TODO: Fill description"],
+                    default_value=None,
+                )
+            },
+            {
+                "project_id": ParameterBlock(
+                    name="project_id",
+                    kind=TypeBrick(kind="str", indexes=[]),
+                    desc=["TODO: Fill description"],
+                    default_value="None",
+                )
+            },
+            CodeBlock(
+                template_name="call_path.py.tpl",
+                template_params={
+                    "var_name": "parent",
+                    "fn_name": "location",
+                    "args": ["project_id", "location"],
+                    "client": TypeBrick(kind="CLOENT_PATH", indexes=[]),
+                },
+            ),
+        ),
+    )
+    def test_generate_method_block(
+        self, mock_convert_path_parameter_block_to_individual_parameters
+    ):
         action_info = ActionInfo(
             name="NAME",
             desc=["DESC_A", "DESC_B"],
@@ -27,7 +65,15 @@ class TestGenerateMethodBlock(TestCase):
             return_kind=TypeBrick("float"),
             return_desc=["DESC_E", "DESC_F"],
         )
-        method_block = hook_generator.generate_method_block(action_info)
+        integration = Integration(
+            service_name="SERVICE_NAME",
+            class_prefix="CLASS_PREFIX",
+            file_prefix="FILE_PREFFIX",
+            client_path="CLOENT_PATH",
+        )
+        method_block = hook_generator.generate_method_block(
+            action_info, path_infos="PATH_INFOS", integration=integration
+        )
         self.assertEqual(
             MethodBlock(
                 name="NAME",
@@ -162,6 +208,66 @@ class TestGenerateCtorMethodBlock(TestCase):
         )
 
 
+class TestConvertPathParameter(TestCase):
+    def test_should_convert(self):
+        parameter = ParameterInfo(
+            name="parent",
+            kind=TypeBrick(kind="str", indexes=[]),
+            desc=[
+                "Required. The resource name of the instance location using the form: "
+                "``projects/{project_id}/locations/{location_id}`` where "
+                "``location_id`` refers to a GCP region"
+            ],
+        )
+        path_infos = {
+            "location": PathInfo(name="location", args=["project", "location"])
+        }
+        integration = Integration(
+            service_name="SERVICE_NAME",
+            class_prefix="CLASS_PREFIX",
+            file_prefix="FILE_PREFFIX",
+            client_path="CLOENT_PATH",
+        )
+        req_params, opt_params, code = hook_generator.convert_path_parameter_block_to_individual_parameters(
+            parameter, path_infos=path_infos, integration=integration
+        )
+
+        self.assertEqual(
+            {
+                "location": ParameterBlock(
+                    name="location",
+                    kind=TypeBrick(kind="str", indexes=[]),
+                    desc=["TODO: Fill description"],
+                    default_value=None,
+                )
+            },
+            req_params,
+        )
+        self.assertEqual(
+            {
+                "project_id": ParameterBlock(
+                    name="project_id",
+                    kind=TypeBrick(kind="str", indexes=[]),
+                    desc=["TODO: Fill description"],
+                    default_value="None",
+                )
+            },
+            opt_params,
+        )
+        self.assertEqual(
+            CodeBlock(
+                template_name="call_path.py.tpl",
+                template_params={
+                    "var_name": "parent",
+                    "fn_name": "location",
+                    "args": ["project_id", "location"],
+                    "client": TypeBrick(kind="CLOENT_PATH", indexes=[]),
+                },
+            ),
+            code,
+        )
+
+
 class TestGenerateClassBlock(TestCase):
     @mock.patch(
         "airflow_munchkin.block_generator.hook_generator.generate_ctor_method_block",
@@ -188,11 +294,10 @@ class TestGenerateClassBlock(TestCase):
             client_path="CLOENT_PATH",
         )
         ctor_method = self._create_action_info("CTOR_")
-        project_path_method = self._create_action_info("PATH_")
         update_instance_method = self._create_action_info("UPDATE_INSTANCE_")
         client_info = ClientInfo(
             ctor_method=ctor_method,
-            path_methods={"project_path": project_path_method},
+            path_methods={},
             action_methods={"update_instance": update_instance_method},
         )
         class_block = hook_generator.generate_class_block(
@@ -206,7 +311,13 @@ class TestGenerateClassBlock(TestCase):
             ),
             class_block,
         )
-        mock_generate_method_block.assert_any_call(update_instance_method)
+        mock_generate_method_block.assert_any_call(
+            update_instance_method, path_infos={}, integration=integration
+        )
+        mock_generate_ctor_method_block.assert_called_once_with(
+            client_info, integration
+        )
+        mock_generate_get_conn_method_block.assert_called_once_with(integration)
         mock_generate_ctor_method_block.assert_called_once_with(
             client_info, integration
         )

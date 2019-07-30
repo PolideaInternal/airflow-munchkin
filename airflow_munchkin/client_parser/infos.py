@@ -10,6 +10,11 @@ class ParameterInfo(NamedTuple):
     desc: List[str]
 
 
+class PathInfo(NamedTuple):
+    name: str
+    args: List[str]
+
+
 class ActionInfo(NamedTuple):
     name: str
     desc: List[str]
@@ -20,5 +25,5 @@ class ActionInfo(NamedTuple):
 
 class ClientInfo(NamedTuple):
     ctor_method: ActionInfo
-    path_methods: Dict[str, ActionInfo]
+    path_methods: Dict[str, PathInfo]
     action_methods: Dict[str, ActionInfo]

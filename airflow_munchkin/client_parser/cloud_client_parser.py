@@ -4,11 +4,21 @@ from typing import Callable, List, Dict, Optional
 
 from airflow_munchkin.client_parser import docstring_parser
 from airflow_munchkin.client_parser.docstring_parser.bricks import FieldBrick, TypeBrick
-from airflow_munchkin.client_parser.infos import ParameterInfo, ActionInfo, ClientInfo
+from airflow_munchkin.client_parser.infos import (
+    ParameterInfo,
+    ActionInfo,
+    ClientInfo,
+    PathInfo,
+)
 from airflow_munchkin.utils import load_class
 
 
-def parse_method(name: str, method: Callable) -> ActionInfo:
+def parse_path_method(name: str, method: Callable) -> PathInfo:
+    sign = inspect.Signature.from_callable(method)
+    return PathInfo(name=name, args=list(sign.parameters.keys()))
+
+
+def parse_action_method(name: str, method: Callable) -> ActionInfo:
     docstring = method.__doc__
     assert docstring is not None
 
@@ -53,16 +63,16 @@ def parse_client(clazz_name: str) -> ClientInfo:
     methods = inspect.getmembers(clazz, predicate=inspect.ismethod)
     functions = inspect.getmembers(clazz, predicate=inspect.isfunction)
     path_methods = {
-        name: parse_method(name, method)
+        name: parse_path_method(name, method)
         for name, method in methods
         if name.endswith("_path")
     }
     action_methods = {
-        name: parse_method(name, method)
+        name: parse_action_method(name, method)
         for name, method in functions
         if name != "__init__"
     }
-    ctor_method = parse_method(
+    ctor_method = parse_action_method(
         "__init__", next(method for name, method in functions if name == "__init__")
     )
 
