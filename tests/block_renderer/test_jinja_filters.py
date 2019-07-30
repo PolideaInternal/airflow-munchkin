@@ -35,6 +35,36 @@ class TestWrapText(TestCase):
             output_text, jinja_filters.wrap_text(input_text, 60, deindent_first=False)
         )
 
+    def test_wrap_text_should_wrap_text_with_list(self):
+        input_text = [
+            "Required. Mask of fields to update. At least one path must be supplied in "
+            "this field. The elements of the repeated paths field may only include these "
+            "fields from ``Instance``:",
+            "-  ``displayName``\n-  ``labels``\n-  ``memorySizeGb``\n-  ``redisConfig``",
+            "If a dict is provided, it must be of the same form as the protobuf message "
+            ":class:`~google.cloud.redis_v1.types.FieldMask`",
+        ]
+        output_text = textwrap.dedent(
+            """
+            Required. Mask of fields to update. At least one path must
+            be supplied in this field. The elements of the repeated
+            paths field may only include these fields from ``Instance``:
+
+            -  ``displayName``
+            -  ``labels``
+            -  ``memorySizeGb``
+            -
+            ``redisConfig``
+
+            If a dict is provided, it must be of the same form as the
+            protobuf message
+            :class:`~google.cloud.redis_v1.types.FieldMask`
+            """
+        ).strip()
+        self.assertEqual(
+            output_text, jinja_filters.wrap_text(input_text, 60, deindent_first=False)
+        )
+
 
 class TestToClassName(TestCase):
     def test_to_class_name(self):
