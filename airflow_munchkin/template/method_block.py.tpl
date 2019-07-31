@@ -1,6 +1,6 @@
 {% macro arguments_list(arguments) -%}
     {% for name, info in arguments.items() -%}
-        {{ name }}: {{ info.kind.short_form }}{% if info.default_value %} = {{ info.default_value }}{% endif %}
+        {{ name }}{% if info.kind %}: {{ info.kind.short_form }}{% endif %}{% if info.default_value %} = {{ info.default_value }}{% endif %}
         {% if not loop.last -%}, {% endif %}
     {% endfor %}
 {% endmacro %}
@@ -18,7 +18,9 @@ def {{ name }}(self, {{ arguments_list(args) }}):
 
 {% for arg in args.values() %}
 {{ rst_param(arg.name, arg.desc, 102) }}
+{% if arg.kind -%}
 :type {{ arg.name }}: {{ arg.kind.long_form  }}
+{% endif %}
 {% endfor %}
 """
 {% endfilter %}

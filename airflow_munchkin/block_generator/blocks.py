@@ -11,7 +11,7 @@ class CodeBlock(NamedTuple):
 
 class ParameterBlock(NamedTuple):
     name: str
-    kind: Optional[TypeBrick]
+    kind: Optional[TypeBrick] = None
     desc: Optional[List[str]] = None
     default_value: Optional[str] = None
 
