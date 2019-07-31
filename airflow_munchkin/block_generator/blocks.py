@@ -45,4 +45,8 @@ class FileBlock(NamedTuple):
         "airflow.contrib.hooks.gcp_api_base_hook.GoogleCloudBaseHook",
         "google.api_core.retry.Retry",
         "google.cloud.redis_v1beta1.CloudRedisClient",
+        "tests.contrib.utils.base_gcp_mock.mock_base_gcp_hook_default_project_id",
+        "tests.contrib.utils.base_gcp_mock.mock_base_gcp_hook_no_default_project_id",
+        "unittest.TestCase",
+        "unittest.mock",
     }
