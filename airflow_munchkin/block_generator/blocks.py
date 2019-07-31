@@ -23,6 +23,7 @@ class MethodBlock(NamedTuple):
     return_kind: Optional[TypeBrick]
     return_desc: Optional[List[str]]
     code_blocks: List[CodeBlock]
+    decorator_blocks: List[CodeBlock] = []
 
 
 class ClassBlock(NamedTuple):

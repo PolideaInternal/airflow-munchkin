@@ -23,6 +23,9 @@ def render_method_block(method_block: MethodBlock) -> str:
     logging.info("Rendering method block: %s", method_block.name)
 
     code_blocks = [render_code_block(block) for block in method_block.code_blocks]
+    decorator_blocks = [
+        render_code_block(block) for block in method_block.decorator_blocks
+    ]
 
     return render_template(
         template_name="method_block.py.tpl",
@@ -32,6 +35,7 @@ def render_method_block(method_block: MethodBlock) -> str:
         return_kind=method_block.return_kind,
         return_desc=method_block.return_desc,
         code_blocks=code_blocks,
+        decorator_blocks=decorator_blocks,
     )
 
 

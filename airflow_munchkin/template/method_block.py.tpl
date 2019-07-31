@@ -5,6 +5,9 @@
     {% endfor %}
 {% endmacro %}
 
+{% for decorator_block in decorator_blocks -%}
+{{ decorator_block }}
+{% endfor %}
 def {{ name }}(self, {{ arguments_list(args) }}):
 {# TODO: Implement return_kind#}
 {#-> {{ return_kind }}:#}

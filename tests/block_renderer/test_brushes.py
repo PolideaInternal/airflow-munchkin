@@ -43,13 +43,17 @@ class TestRenderMethodBlock(TestCase):
             return_kind="TYPE_BRICK",
             return_desc=["DESC_C", "DESC_D"],
             code_blocks=["CODE_BLOCK_1", "CODE_BLOCK_2"],
+            decorator_blocks=["CODE_BLOCK_3", "CODE_BLOCK_4"],
         )
         result = brushes.render_method_block(method_block)
         mock_render_code_block.assert_any_call("CODE_BLOCK_1")
         mock_render_code_block.assert_any_call("CODE_BLOCK_2")
+        mock_render_code_block.assert_any_call("CODE_BLOCK_3")
+        mock_render_code_block.assert_any_call("CODE_BLOCK_4")
         mock_render_template.assert_called_once_with(
             args={"ARG_A": "PARAMETER_A"},
             code_blocks=["TEMPLATE_CODE_BLOCK", "TEMPLATE_CODE_BLOCK"],
+            decorator_blocks=["TEMPLATE_CODE_BLOCK", "TEMPLATE_CODE_BLOCK"],
             desc=["DESC_A", "DESC_B"],
             name="NAME",
             return_desc=["DESC_C", "DESC_D"],
@@ -83,6 +87,7 @@ class TestRenderMethodBlock(TestCase):
         mock_render_template.assert_called_once_with(
             args={"ARG_A": "PARAMETER_A"},
             code_blocks=["TEMPLATE_CODE_BLOCK", "TEMPLATE_CODE_BLOCK"],
+            decorator_blocks=[],
             desc=None,
             name="__init__",
             return_desc=["DESC_C", "DESC_D"],
