@@ -117,7 +117,64 @@ class TestGenerateTestMethodForClientCall(TestCase):
         )
 
 
+class TestgenerateTestMethodForCallWithoutProjectId(TestCase):
+    def test_generate_test_method_for_call_without_project_id(self):
+        hook_class_path = "HOOK_CLASS_PATH"
+        hook_method = self._create_method("METHOD_A", ["ARG_A", "ARG_B"])
+        result = hook_test_generator.generate_test_method_for_call_without_project_id(
+            hook_class_path, hook_method
+        )
+        self.assertEqual(
+            MethodBlock(
+                name="test_METHOD_A_without_project_id",
+                desc=None,
+                args={
+                    "mock_get_conn": ParameterBlock(
+                        name="mock_get_conn", kind=None, desc=None, default_value=None
+                    )
+                },
+                return_kind=TypeBrick(kind="None", indexes=[]),
+                return_desc=None,
+                code_blocks=[
+                    CodeBlock(
+                        template_name="method_call_assert_raises.py.tpl",
+                        template_params={
+                            "target": "self.hook.METHOD_A",
+                            "call_params": {
+                                "ARG_A": "TEST_ARG_A",
+                                "ARG_B": "TEST_ARG_B",
+                            },
+                        },
+                    )
+                ],
+                decorator_blocks=[
+                    CodeBlock(
+                        template_name="decorator_mock_get_conn.py.tpl",
+                        template_params={"class_path": "HOOK_CLASS_PATH"},
+                    )
+                ],
+            ),
+            result,
+        )
+
+    @staticmethod
+    def _create_method(name: str, args: List[str]):
+        return MethodBlock(
+            name=name,
+            desc=None,
+            args={a: mock.MagicMock() for a in args},
+            return_kind=None,
+            return_desc=None,
+            code_blocks=[],
+            decorator_blocks=[],
+        )
+
+
 class TestGenerateClassBlockWithoutDefaultProjectId(TestCase):
+    @mock.patch(
+        f"{BASE_PATH}.generate_test_method_for_call_without_project_id",
+        return_value="TEST_C",
+    )
     @mock.patch(
         f"{BASE_PATH}.generate_test_method_for_client_call",
         side_effect=["TEST_A", "TEST_B"],
@@ -127,6 +184,7 @@ class TestGenerateClassBlockWithoutDefaultProjectId(TestCase):
         self,
         mock_generate_setup_method_block,
         mock_generate_test_method_for_client_call,
+        mock_generate_test_method_for_call_without_project_id,
     ):
         integration = Integration(
             service_name="SERVICE_NAME",
@@ -135,8 +193,8 @@ class TestGenerateClassBlockWithoutDefaultProjectId(TestCase):
             client_path="CLIENT_PATH",
         )
 
-        method_a = self._create_method("METHOD_A")
-        method_b = self._create_method("METHOD_B")
+        method_a = self._create_method("METHOD_A", args=["location"])
+        method_b = self._create_method("METHOD_B", args=["project_id"])
         action_a = self._create_action("METHOD_A")
         action_b = self._create_action("METHOD_B")
 
@@ -158,7 +216,7 @@ class TestGenerateClassBlockWithoutDefaultProjectId(TestCase):
             ClassBlock(
                 name="TestCLASS_PREFIXHook",
                 extend_class="unittest.TestCase",
-                methods_blocks=["CLASS_A", "TEST_A", "TEST_B"],
+                methods_blocks=["CLASS_A", "TEST_A", "TEST_B", "TEST_C"],
             ),
             result,
         )
@@ -171,13 +229,16 @@ class TestGenerateClassBlockWithoutDefaultProjectId(TestCase):
         mock_generate_test_method_for_client_call.assert_any_call(
             action_b, method_b, "HOOK_CLASS_PATH"
         )
+        mock_generate_test_method_for_call_without_project_id.assert_any_call(
+            "HOOK_CLASS_PATH", method_b
+        )
 
     @staticmethod
-    def _create_method(name: str):
+    def _create_method(name: str, args: List[str]):
         return MethodBlock(
             name=name,
             desc=None,
-            args={},
+            args={a: mock.MagicMock() for a in args},
             return_kind=None,
             return_desc=None,
             code_blocks=[],

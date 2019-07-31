@@ -74,6 +74,38 @@ def generate_test_method_for_client_call(
     return method_block
 
 
+def generate_test_method_for_call_without_project_id(
+    hook_class_path: str, hook_method_block: MethodBlock
+) -> MethodBlock:
+    code_blocks = [
+        CodeBlock(
+            template_name="method_call_assert_raises.py.tpl",
+            template_params={
+                "target": f"self.hook.{hook_method_block.name}",
+                "call_params": {
+                    a: f"TEST_{a.upper()}" if a != "project_id" else "None"
+                    for a in hook_method_block.args.keys()
+                },
+            },
+        )
+    ]
+    method_block = MethodBlock(
+        name=f"test_{hook_method_block.name}_without_project_id",
+        desc=None,
+        args={"mock_get_conn": ParameterBlock("mock_get_conn")},
+        return_kind=TypeBrick("None"),
+        return_desc=None,
+        code_blocks=code_blocks,
+        decorator_blocks=[
+            CodeBlock(
+                template_name="decorator_mock_get_conn.py.tpl",
+                template_params={"class_path": hook_class_path},
+            )
+        ],
+    )
+    return method_block
+
+
 def generate_class_block_without_default_project_id(
     hook_class_path: str,
     hook_class: ClassBlock,
@@ -94,6 +126,12 @@ def generate_class_block_without_default_project_id(
                 action_info, hook_method_block, hook_class_path
             )
         )
+        if "project_id" in hook_method_block.args:
+            hook_methods.append(
+                generate_test_method_for_call_without_project_id(
+                    hook_class_path, hook_method_block
+                )
+            )
     class_block = ClassBlock(
         name=f"Test{integration.class_prefix}Hook",
         extend_class="unittest.TestCase",
