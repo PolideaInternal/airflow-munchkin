@@ -83,17 +83,25 @@ class TestGenerateMethodBlock(TestCase):
                         name="ARG_A",
                         kind=TypeBrick(kind="str", indexes=[]),
                         desc=["DESC_C", "DESC_D"],
+                        default_value=None,
                     )
                 },
                 return_kind=TypeBrick(kind="float", indexes=[]),
                 return_desc=["DESC_E", "DESC_F"],
                 code_blocks=[
-                    CodeBlock(template_name="client_init.py.tpl", template_params={}),
                     CodeBlock(
-                        template_name="client_call.py.tpl",
+                        template_name="method_call.py.tpl",
                         template_params={
+                            "var_name": "client",
+                            "target": "self.get_conn",
+                            "call_params": {},
+                        },
+                    ),
+                    CodeBlock(
+                        template_name="method_call.py.tpl",
+                        template_params={
+                            "target": "client.NAME",
                             "var_name": "result",
-                            "name": "NAME",
                             "call_params": {"ARG_A": "ARG_A"},
                         },
                     ),
@@ -102,6 +110,7 @@ class TestGenerateMethodBlock(TestCase):
                         template_params={"var_name": "result"},
                     ),
                 ],
+                decorator_blocks=[],
             ),
             method_block,
         )

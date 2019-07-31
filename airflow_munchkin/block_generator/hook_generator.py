@@ -133,7 +133,14 @@ def generate_method_block(
     action_info: ActionInfo, path_infos: Dict[str, PathInfo], integration: Integration
 ) -> MethodBlock:
     blocks: List[CodeBlock] = []
-    blocks.append(CodeBlock(template_name="client_init.py.tpl", template_params=dict()))
+    blocks.append(
+        CodeBlock(
+            template_name="method_call.py.tpl",
+            template_params=dict(
+                var_name="client", target="self.get_conn", call_params={}
+            ),
+        )
+    )
 
     optional_parameters: Dict[str, ParameterBlock] = {}
     required_parameters: Dict[str, ParameterBlock] = {}
@@ -169,10 +176,10 @@ def generate_method_block(
     )
     blocks.append(
         CodeBlock(
-            template_name="client_call.py.tpl",
+            template_name="method_call.py.tpl",
             template_params=dict(
+                target=f"client.{action_info.name}",
                 var_name="result" if action_info.return_desc else None,
-                name=action_info.name,
                 call_params={arg: arg for arg in action_info.args},
             ),
         )
