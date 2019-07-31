@@ -14,7 +14,7 @@ def generate_file_blocks(
     logging.info("Start generating file blocks")
     hook_file_block = hook_generator.create_file_block(client_info, integration)
     hook_test_file_block = hook_test_generator.create_file_block(
-        hook_file_block, integration
+        hook_file_block, client_info, integration
     )
     logging.info("Finish generating file blocks")
     return [hook_file_block, hook_test_file_block]

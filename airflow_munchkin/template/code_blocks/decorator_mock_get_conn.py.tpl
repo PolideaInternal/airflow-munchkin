@@ -1,6 +1,6 @@
 @mock.patch(  # type: ignore
-    "airflow.contrib.hooks.{{ file_block.file_name }}.{{ class_block.name }}.get_conn",
-    {% if return_value %}
+    "{{ class_path }}.get_conn",
+    {% if return_value is defined and return_value %}
     **{
         "return_value.{{ method_name }}.return_value": {{ return_value }}
     },  # type: ignore
