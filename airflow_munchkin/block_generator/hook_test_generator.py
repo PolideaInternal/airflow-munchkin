@@ -33,8 +33,11 @@ def generate_setup_method_block(class_path: str, init_new: str) -> MethodBlock:
 
 
 def generate_test_method_for_client_call(
-    action_info: ActionInfo, hook_method_block: MethodBlock, hook_class_path: str
-) -> MethodBlock:
+    action_info: ActionInfo,
+    hook_method_block: MethodBlock,
+    hook_class_path: str,
+    project_id_value: str,
+):
     code_blocks = [
         CodeBlock(
             template_name="method_call.py.tpl",
@@ -52,6 +55,8 @@ def generate_test_method_for_client_call(
                 "target": f"mock_get_conn.{action_info.name}.assert_called_once_with",
                 "call_params": {
                     arg_name: f"TEST_{arg_name.upper()}"
+                    if arg_name != "project_id"
+                    else project_id_value
                     for arg_name in action_info.args.keys()
                 },
             },
@@ -123,7 +128,7 @@ def generate_class_block_without_default_project_id(
         hook_method_block = next(m for m in hook_class.methods_blocks if m.name == name)
         hook_methods.append(
             generate_test_method_for_client_call(
-                action_info, hook_method_block, hook_class_path
+                action_info, hook_method_block, hook_class_path, "TEST_PROJECT_ID"
             )
         )
         if "project_id" in hook_method_block.args:
@@ -133,7 +138,38 @@ def generate_class_block_without_default_project_id(
                 )
             )
     class_block = ClassBlock(
-        name=f"Test{integration.class_prefix}Hook",
+        name=f"Test{integration.class_prefix}WithoutDefaultProjectIdHook",
+        extend_class="unittest.TestCase",
+        methods_blocks=hook_methods,
+    )
+    return class_block
+
+
+def generate_class_block_with_default_project_id(
+    hook_class_path: str,
+    hook_class: ClassBlock,
+    client_info: ClientInfo,
+    integration: Integration,
+) -> ClassBlock:
+    hook_methods = []
+    hook_methods.append(
+        generate_setup_method_block(
+            hook_class_path, "mock_base_gcp_hook_default_project_id"
+        )
+    )
+    for name in client_info.action_methods.keys():
+        action_info = client_info.action_methods[name]
+        hook_method_block = next(m for m in hook_class.methods_blocks if m.name == name)
+        hook_methods.append(
+            generate_test_method_for_client_call(
+                action_info,
+                hook_method_block,
+                hook_class_path,
+                "GCP_PROJECT_ID_HOOK_UNIT_TEST",
+            )
+        )
+    class_block = ClassBlock(
+        name=f"Test{integration.class_prefix}WithDefaultProjectIdHook",
         extend_class="unittest.TestCase",
         methods_blocks=hook_methods,
     )
@@ -148,12 +184,19 @@ def create_file_block(
     hook_class = hook_file_block.class_blocks[0]
     hook_class_path = f"airflow.contrib.hooks.{hook_module_name}.{hook_class.name}"
 
+    class_block_with_default_project_id = generate_class_block_with_default_project_id(
+        hook_class_path, hook_class, client_info, integration
+    )
     class_block_without_default_project_id = generate_class_block_without_default_project_id(
         hook_class_path, hook_class, client_info, integration
     )
+
     file_block: FileBlock = FileBlock(
         file_name=f"test_{integration.file_prefix}_hook.py",
-        class_blocks=[class_block_without_default_project_id],
+        class_blocks=[
+            class_block_with_default_project_id,
+            class_block_without_default_project_id,
+        ],
     )
     imports_statement_gather.update_imports_statements(file_block)
     file_block.import_statement.add(hook_class_path)

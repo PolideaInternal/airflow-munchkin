@@ -388,6 +388,7 @@ class TestCreateFileBlock(TestCase):
                     "google.cloud.redis_v1beta1.CloudRedisClient",
                     "tests.contrib.utils.base_gcp_mock.mock_base_gcp_hook_default_project_id",
                     "tests.contrib.utils.base_gcp_mock.mock_base_gcp_hook_no_default_project_id",
+                    "tests.contrib.utils.base_gcp_mock.GCP_PROJECT_ID_HOOK_UNIT_TEST",
                     "unittest.TestCase",
                     "unittest.mock",
                 },
