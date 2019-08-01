@@ -9,10 +9,11 @@ from airflow_munchkin.block_generator.blocks import (
     ClassBlock,
     FileBlock,
     ParameterBlock,
+    Constant,
 )
 from airflow_munchkin.client_parser import ClientInfo
 from airflow_munchkin.client_parser.docstring_parser.bricks import TypeBrick
-from airflow_munchkin.client_parser.infos import ActionInfo
+from airflow_munchkin.client_parser.infos import ActionInfo, ParameterInfo
 from airflow_munchkin.integration import Integration
 
 BASE_PATH = "airflow_munchkin.block_generator.hook_test_generator"
@@ -38,6 +39,183 @@ class TestGenerateSetupMethodBlock(TestCase):
                 ],
                 decorator_blocks=[],
             ),
+            result,
+        )
+
+
+class TestGenerateConstants(TestCase):
+    def test_should_look_at_method_args(self):
+        hook_method_blocks = [
+            MethodBlock(
+                name="NAME",
+                desc=None,
+                args={"arg": ParameterBlock("arg")},
+                return_kind=None,
+                return_desc=None,
+                code_blocks=[],
+                decorator_blocks=[],
+            )
+        ]
+        action_infos = []
+        result = hook_test_generator.generate_constants(
+            hook_method_blocks, action_infos
+        )
+        self.assertEqual(
+            [
+                Constant(
+                    name="TEST_ARG",
+                    value="None # TODO: Fill missing value",
+                    kind=TypeBrick(kind="None", indexes=[]),
+                )
+            ],
+            result,
+        )
+
+    def test_should_look_at_action_args(self):
+        hook_method_blocks = []
+        action_infos = [
+            ActionInfo(
+                name="NAME2",
+                desc=[],
+                args={"arg2": ParameterInfo("arg2", kind=None, desc=[])},
+                return_kind=None,
+                return_desc=None,
+            )
+        ]
+        result = hook_test_generator.generate_constants(
+            hook_method_blocks, action_infos
+        )
+        self.assertEqual(
+            [
+                Constant(
+                    name="TEST_ARG2",
+                    value="None # TODO: Fill missing value",
+                    kind=TypeBrick(kind="None", indexes=[]),
+                )
+            ],
+            result,
+        )
+
+    def test_should_look_at_method_and_action_args(self):
+        hook_method_blocks = [
+            MethodBlock(
+                name="NAME",
+                desc=None,
+                args={"arg": ParameterBlock("arg")},
+                return_kind=None,
+                return_desc=None,
+                code_blocks=[],
+                decorator_blocks=[],
+            )
+        ]
+        action_infos = [
+            ActionInfo(
+                name="NAME2",
+                desc=[],
+                args={"arg2": ParameterInfo("arg2", kind=None, desc=[])},
+                return_kind=None,
+                return_desc=None,
+            )
+        ]
+        result = hook_test_generator.generate_constants(
+            hook_method_blocks, action_infos
+        )
+        self.assertEqual(
+            [
+                Constant(
+                    name="TEST_ARG",
+                    value="None # TODO: Fill missing value",
+                    kind=TypeBrick(kind="None", indexes=[]),
+                ),
+                Constant(
+                    name="TEST_ARG2",
+                    value="None # TODO: Fill missing value",
+                    kind=TypeBrick(kind="None", indexes=[]),
+                ),
+            ],
+            result,
+        )
+
+    def test_should_unpack_optional(self):
+        hook_method_blocks = [
+            MethodBlock(
+                name="setUp",
+                desc=None,
+                args={
+                    "arg3": ParameterBlock(
+                        "arg3", kind=TypeBrick("Optional", indexes=[TypeBrick("Dict")])
+                    )
+                },
+                return_kind=None,
+                return_desc=None,
+                code_blocks=[],
+                decorator_blocks=[],
+            )
+        ]
+        result = hook_test_generator.generate_constants(hook_method_blocks, [])
+        self.assertEqual(
+            [
+                Constant(
+                    name="TEST_ARG3",
+                    value="None # TODO: Fill missing value",
+                    kind=TypeBrick(kind="Dict", indexes=[]),
+                )
+            ],
+            result,
+        )
+
+    def test_should_generate_value_for_string(self):
+        hook_method_blocks = [
+            MethodBlock(
+                name="setUp",
+                desc=None,
+                args={"arg3": ParameterBlock("arg3", TypeBrick("str"))},
+                return_kind=None,
+                return_desc=None,
+                code_blocks=[],
+                decorator_blocks=[],
+            )
+        ]
+        result = hook_test_generator.generate_constants(hook_method_blocks, [])
+        self.assertEqual(
+            [
+                Constant(
+                    name="TEST_ARG3",
+                    value="'test-arg3'",
+                    kind=TypeBrick(kind="str", indexes=[]),
+                )
+            ],
+            result,
+        )
+
+    def test_should_generate_value_for_optional_string(self):
+        hook_method_blocks = [
+            MethodBlock(
+                name="setUp",
+                desc=None,
+                args={
+                    "arg3": ParameterBlock(
+                        "arg3",
+                        TypeBrick(
+                            kind="Optional", indexes=[TypeBrick(kind="str", indexes=[])]
+                        ),
+                    )
+                },
+                return_kind=None,
+                return_desc=None,
+                code_blocks=[],
+                decorator_blocks=[],
+            )
+        ]
+        result = hook_test_generator.generate_constants(hook_method_blocks, [])
+        self.assertEqual(
+            [
+                Constant(
+                    name="TEST_ARG3",
+                    value="'test-arg3'",
+                    kind=TypeBrick(kind="str", indexes=[]),
+                )
+            ],
             result,
         )
 
@@ -326,6 +504,7 @@ class TestGenerateClassBlockWithDefaultProjectId(TestCase):
 
 
 class TestCreateFileBlock(TestCase):
+    @mock.patch(f"{BASE_PATH}.generate_constants", return_value="CONSTANTS")
     @mock.patch(
         f"{BASE_PATH}.generate_class_block_without_default_project_id",
         return_value="CLASS_B",
@@ -340,6 +519,7 @@ class TestCreateFileBlock(TestCase):
         mock_generate_class_block_without_default_project_id,
         mock_imports_statement_gather,
         mock_generate_class_block_with_default_project_id,
+        mock_generate_constants,
     ):
         integration = Integration(
             service_name="SERVICE_NAME",
@@ -357,47 +537,56 @@ class TestCreateFileBlock(TestCase):
             class_blocks=[hook_class_block],
             import_statement={"IMPORT_A"},
         )
+        client_info = ClientInfo(
+            ctor_method=None,
+            path_methods={},
+            action_methods={"METHOD_A": mock.MagicMock(), "METHOD_B": mock.MagicMock()},
+        )
         result = hook_test_generator.create_file_block(
             hook_file_block=hook_file_block,
             integration=integration,
-            client_info="CLIENT_INFO",
+            client_info=client_info,
         )
         self.assertEqual(
             FileBlock(
                 file_name="test_FILE_PREFFIX_hook.py",
                 class_blocks=["CLASS_A", "CLASS_B"],
                 import_statement={
-                    "airflow.contrib.hooks.gcp_api_base_hook.GoogleCloudBaseHook",
-                    "typing.Sequence",
-                    "typing.Union",
-                    "tests.contrib.utils.base_gcp_mock.GCP_PROJECT_ID_HOOK_UNIT_TEST",
-                    "typing.Optional",
-                    "typing.Tuple",
-                    "tests.contrib.utils.base_gcp_mock.mock_base_gcp_hook_default_project_id",
-                    "google.cloud.redis_v1beta1.CloudRedisClient",
-                    "google.api_core.retry.Retry",
-                    "airflow.contrib.hooks.FILE_PREFFIX_hook.CLASS_PREFIXHook",
-                    "unittest.TestCase",
                     "tests.contrib.utils.base_gcp_mock.mock_base_gcp_hook_no_default_project_id",
+                    "typing.Tuple",
+                    "typing.Union",
+                    "tests.contrib.utils.base_gcp_mock.mock_base_gcp_hook_default_project_id",
                     "typing.Dict",
-                    "unittest.mock",
+                    "airflow.contrib.hooks.FILE_PREFFIX_hook.CLASS_PREFIXHook",
                     "airflow.AirflowException",
+                    "google.api_core.retry.Retry",
+                    "airflow.contrib.hooks.gcp_api_base_hook.GoogleCloudBaseHook",
+                    "tests.contrib.utils.base_gcp_mock.GCP_PROJECT_ID_HOOK_UNIT_TEST",
+                    "unittest.mock",
+                    "typing.Sequence",
+                    "typing.Optional",
+                    "google.cloud.redis_v1beta1.CloudRedisClient",
+                    "unittest.TestCase",
                 },
+                constants="CONSTANTS",
             ),
             result,
         )
         mock_generate_class_block_without_default_project_id.assert_called_once_with(
             "airflow.contrib.hooks.FILE_PREFFIX_hook.CLASS_PREFIXHook",
             hook_class_block,
-            "CLIENT_INFO",
+            client_info,
             integration,
         )
         mock_generate_class_block_with_default_project_id.assert_called_once_with(
             "airflow.contrib.hooks.FILE_PREFFIX_hook.CLASS_PREFIXHook",
             hook_class_block,
-            "CLIENT_INFO",
+            client_info,
             integration,
         )
         mock_imports_statement_gather.update_imports_statements.assert_called_once_with(
             result
+        )
+        mock_generate_constants.assert_called_once_with(
+            ["METHOD_CTOR", "METHOD_GET_CONN", "METHOD_A"], mock.ANY
         )

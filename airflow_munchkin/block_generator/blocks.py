@@ -32,6 +32,12 @@ class ClassBlock(NamedTuple):
     methods_blocks: List[MethodBlock]
 
 
+class Constant(NamedTuple):
+    name: str
+    value: str
+    kind: Optional[TypeBrick] = None
+
+
 class FileBlock(NamedTuple):
     file_name: str
     class_blocks: List[ClassBlock]
@@ -51,3 +57,4 @@ class FileBlock(NamedTuple):
         "unittest.TestCase",
         "unittest.mock",
     }
+    constants: List[Constant] = []

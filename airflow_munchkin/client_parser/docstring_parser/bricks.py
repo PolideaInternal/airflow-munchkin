@@ -39,6 +39,10 @@ class TypeBrick(NamedTuple):
     def is_optional(self) -> bool:
         return self.kind == "Optional" or self.kind == "typing.Optional"
 
+    @property
+    def is_union(self) -> bool:
+        return self.kind == "Union" or self.kind == "typing.Union"
+
 
 class FieldBrick(NamedTuple):
     name: str

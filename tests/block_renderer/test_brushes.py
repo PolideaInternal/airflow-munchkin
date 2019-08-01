@@ -150,9 +150,11 @@ class TestRenderFileBlock(TestCase):
             file_name="FILE_NAME",
             class_blocks=["CLASS_A"],
             import_statement={"kitty", "mouse"},
+            constants=["CONSTANT_A"],
         )
         result = brushes.render_file_block(file_block)
         mock_render_template.assert_called_once_with(
+            constants=["CONSTANT_A"],
             class_blocks=["TEMPLATE_CLASS_BLOCK"],
             import_statement={"kitty", "mouse"},
             template_name="file_block.py.tpl",

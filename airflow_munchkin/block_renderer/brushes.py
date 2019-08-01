@@ -67,4 +67,5 @@ def render_file_block(file_block: FileBlock) -> str:
         template_name="file_block.py.tpl",
         class_blocks=class_blocks,
         import_statement=file_block.import_statement,
+        constants=file_block.constants,
     )

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from typing import List, Iterable
 
 from airflow_munchkin.block_generator import imports_statement_gather
 from airflow_munchkin.block_generator.blocks import (
@@ -8,6 +9,7 @@ from airflow_munchkin.block_generator.blocks import (
     CodeBlock,
     FileBlock,
     ParameterBlock,
+    Constant,
 )
 from airflow_munchkin.client_parser import ClientInfo
 from airflow_munchkin.client_parser.docstring_parser.bricks import TypeBrick
@@ -30,6 +32,34 @@ def generate_setup_method_block(class_path: str, init_new: str) -> MethodBlock:
         ],
     )
     return method_block
+
+
+def generate_constants(
+    hook_method_blocks: Iterable[MethodBlock], action_infos: Iterable[ActionInfo]
+) -> List[Constant]:
+    constants = []
+    unique_constant = {}
+    unique_constant.update(
+        {a.name: a.kind for m in hook_method_blocks for a in m.args.values()}
+    )
+    unique_constant.update(
+        {a.name: a.kind for i in action_infos for a in i.args.values()}
+    )
+
+    for name, kind in unique_constant.items():
+        constant_name = f"TEST_{name.upper()}"
+        constant_kind = kind or TypeBrick("None")
+        if constant_kind and (constant_kind.is_union or constant_kind.is_optional):
+            constant_kind = constant_kind.indexes[0]
+        constant_value = (
+            f'\'test-{name.replace("_", "-")}\''
+            if constant_kind.name == "str"
+            else "None # TODO: Fill missing value"
+        )
+        constants.append(
+            Constant(name=constant_name, kind=constant_kind, value=constant_value)
+        )
+    return constants
 
 
 def generate_test_method_for_client_call(
@@ -197,6 +227,9 @@ def create_file_block(
             class_block_with_default_project_id,
             class_block_without_default_project_id,
         ],
+        constants=generate_constants(
+            hook_class.methods_blocks, client_info.action_methods.values()
+        ),
     )
     imports_statement_gather.update_imports_statements(file_block)
     file_block.import_statement.add(hook_class_path)
