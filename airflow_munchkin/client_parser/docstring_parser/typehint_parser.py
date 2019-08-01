@@ -92,9 +92,21 @@ class TypeHintParser:
         self.element = element
 
 
+def replace_all_kind(typehint_element: TypeBrick, old: str, new: str):
+    def walk_recursive_and_replace(element: TypeBrick):
+        if element.kind == old:
+            element.kind = new
+        if element.indexes:
+            for child in element.indexes:
+                walk_recursive_and_replace(child)
+
+    walk_recursive_and_replace(typehint_element)
+
+
 def parse_typehint(text: str) -> TypeBrick:
     logging.info("Parsing typehint: %s", text)
     parser = TypeHintParser(text)
     assert parser.element is not None
     element = parser.element
+    replace_all_kind(element, "dict", "Dict")
     return element

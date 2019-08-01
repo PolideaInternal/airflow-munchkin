@@ -2,14 +2,32 @@
 from typing import NamedTuple, List, Union, Optional, Any
 
 
-class TypeBrick(NamedTuple):
+# TODO: Use dataclass
+class TypeBrick:
     kind: str
     # Should be List[SectionBrick], but recursive types is not supported in mypy:
     # Issue: https://github.com/python/mypy/issues/731
     indexes: List[Any] = []
 
+    def __init__(self, kind: str, indexes: List[Any] = None):
+        self.kind = kind
+        self.indexes = indexes or []
+
     def __str__(self) -> str:
         return self.long_form
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        return False
+
+    def __repr__(self) -> str:
+        if not self.indexes:
+            return f"TypeBrick(kind={repr(self.kind)})"
+        return f"TypeBrick(kind={repr(self.kind)}, indexes={self.indexes})"
+
+    def __hash__(self):
+        return hash((self.kind, self.indexes))
 
     @property
     def name(self) -> str:

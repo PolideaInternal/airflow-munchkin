@@ -49,6 +49,24 @@ class TestTypeHintParser(unittest.TestCase):
             typehint_parser.parse_typehint("dict[str -> float]"),
         )
 
+    def test_should_refinement_dict(self):
+        self.assertEqual(
+            TypeBrick(kind="Dict", indexes=[]), typehint_parser.parse_typehint("dict")
+        )
+
+    def test_should_refinement_nested_dict(self):
+        self.assertEqual(
+            TypeBrick(
+                kind="Union",
+                indexes=[
+                    TypeBrick(
+                        kind="Optional", indexes=[TypeBrick(kind="Dict", indexes=[])]
+                    )
+                ],
+            ),
+            typehint_parser.parse_typehint("Union[Optional[dict]]"),
+        )
+
     @parameterized.expand(
         [
             (TypeBrick(kind="str", indexes=[]), "str"),
@@ -56,7 +74,7 @@ class TestTypeHintParser(unittest.TestCase):
                 TypeBrick(
                     kind="Union",
                     indexes=[
-                        TypeBrick(kind="dict", indexes=[]),
+                        TypeBrick(kind="Dict", indexes=[]),
                         TypeBrick(
                             kind="google.cloud.automl_v1beta1.types.BatchPredictInputConfig",
                             indexes=[],
@@ -69,7 +87,7 @@ class TestTypeHintParser(unittest.TestCase):
                 TypeBrick(
                     kind="Union",
                     indexes=[
-                        TypeBrick(kind="dict", indexes=[]),
+                        TypeBrick(kind="Dict", indexes=[]),
                         TypeBrick(
                             kind="google.cloud.automl_v1beta1.types.BatchPredictOutputConfig",
                             indexes=[],
@@ -126,7 +144,7 @@ class TestTypeHintParser(unittest.TestCase):
                 TypeBrick(
                     kind="Union",
                     indexes=[
-                        TypeBrick(kind="dict", indexes=[]),
+                        TypeBrick(kind="Dict", indexes=[]),
                         TypeBrick(
                             kind="google.cloud.automl_v1beta1.types.ExamplePayload",
                             indexes=[],
