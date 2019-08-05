@@ -24,7 +24,9 @@ def generate_file_blocks(
     )
 
     # Operators
-    operator_file_block = operator_generator.create_file_block(integration)
+    operator_file_block = operator_generator.create_file_block(
+        integration, hook_file_block
+    )
 
     logging.info("Finish generating file blocks")
     return [hook_file_block, hook_test_file_block, operator_file_block]

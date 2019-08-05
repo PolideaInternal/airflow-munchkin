@@ -19,6 +19,7 @@ DEFAULT_IMPORTS = (
     "tests.contrib.utils.base_gcp_mock.GCP_PROJECT_ID_HOOK_UNIT_TEST",
     "unittest.TestCase",
     "unittest.mock",
+    "airflow.utils.decorators.apply_defaults",
 )
 
 
