@@ -72,7 +72,7 @@ class FileBlock:
 
     def __str__(self) -> str:
         return (
-            f'FileBlock(file_name={repr(self.file_name)}", class_blocks={self.class_blocks}, '
+            f"FileBlock(file_name={repr(self.file_name)}, class_blocks={self.class_blocks}, "
             f"import_statement={self.import_statement}, constants={repr(self.constants)})"
         )
 
