@@ -9,7 +9,6 @@ from airflow_munchkin.block_generator.blocks import (
     ClassBlock,
     FileBlock,
     ParameterBlock,
-    Constant,
 )
 from airflow_munchkin.client_parser import ClientInfo
 from airflow_munchkin.client_parser.docstring_parser.bricks import TypeBrick
@@ -44,7 +43,11 @@ class TestGenerateSetupMethodBlock(TestCase):
 
 
 class TestGenerateConstants(TestCase):
-    def test_should_look_at_method_args(self):
+    @mock.patch(
+        f"{BASE_PATH}.constant_generator.generate_constant_list",
+        return_value="CONSTANTS",
+    )
+    def test_should_look_at_method_args(self, mock_generate_constant_list):
         hook_method_blocks = [
             MethodBlock(
                 name="NAME",
@@ -60,18 +63,14 @@ class TestGenerateConstants(TestCase):
         result = hook_test_generator.generate_constants(
             hook_method_blocks, action_infos
         )
-        self.assertEqual(
-            [
-                Constant(
-                    name="TEST_ARG",
-                    value="None # TODO: Fill missing value",
-                    kind=TypeBrick(kind="None", indexes=[]),
-                )
-            ],
-            result,
-        )
+        mock_generate_constant_list.assert_called_once_with({"arg": None})
+        self.assertEqual("CONSTANTS", result)
 
-    def test_should_look_at_action_args(self):
+    @mock.patch(
+        f"{BASE_PATH}.constant_generator.generate_constant_list",
+        return_value="CONSTANTS",
+    )
+    def test_should_look_at_action_args(self, mock_generate_constant_list):
         hook_method_blocks = []
         action_infos = [
             ActionInfo(
@@ -85,18 +84,14 @@ class TestGenerateConstants(TestCase):
         result = hook_test_generator.generate_constants(
             hook_method_blocks, action_infos
         )
-        self.assertEqual(
-            [
-                Constant(
-                    name="TEST_ARG2",
-                    value="None # TODO: Fill missing value",
-                    kind=TypeBrick(kind="None", indexes=[]),
-                )
-            ],
-            result,
-        )
+        mock_generate_constant_list.assert_called_once_with({"arg2": None})
+        self.assertEqual("CONSTANTS", result)
 
-    def test_should_look_at_method_and_action_args(self):
+    @mock.patch(
+        f"{BASE_PATH}.constant_generator.generate_constant_list",
+        return_value="CONSTANTS",
+    )
+    def test_should_look_at_method_and_action_args(self, mock_generate_constant_list):
         hook_method_blocks = [
             MethodBlock(
                 name="NAME",
@@ -120,23 +115,14 @@ class TestGenerateConstants(TestCase):
         result = hook_test_generator.generate_constants(
             hook_method_blocks, action_infos
         )
-        self.assertEqual(
-            [
-                Constant(
-                    name="TEST_ARG",
-                    value="None # TODO: Fill missing value",
-                    kind=TypeBrick(kind="None", indexes=[]),
-                ),
-                Constant(
-                    name="TEST_ARG2",
-                    value="None # TODO: Fill missing value",
-                    kind=TypeBrick(kind="None", indexes=[]),
-                ),
-            ],
-            result,
-        )
+        mock_generate_constant_list.assert_called_once_with({"arg": None, "arg2": None})
+        self.assertEqual("CONSTANTS", result)
 
-    def test_should_unpack_optional(self):
+    @mock.patch(
+        f"{BASE_PATH}.constant_generator.generate_constant_list",
+        return_value="CONSTANTS",
+    )
+    def test_should_unpack_optional(self, mock_generate_constant_list):
         hook_method_blocks = [
             MethodBlock(
                 name="setUp",
@@ -153,18 +139,16 @@ class TestGenerateConstants(TestCase):
             )
         ]
         result = hook_test_generator.generate_constants(hook_method_blocks, [])
-        self.assertEqual(
-            [
-                Constant(
-                    name="TEST_ARG3",
-                    value="None # TODO: Fill missing value",
-                    kind=TypeBrick(kind="Dict", indexes=[]),
-                )
-            ],
-            result,
+        mock_generate_constant_list.assert_called_once_with(
+            {"arg3": TypeBrick(kind="Optional", indexes=[TypeBrick(kind="Dict")])}
         )
+        self.assertEqual("CONSTANTS", result)
 
-    def test_should_generate_value_for_string(self):
+    @mock.patch(
+        f"{BASE_PATH}.constant_generator.generate_constant_list",
+        return_value="CONSTANTS",
+    )
+    def test_should_generate_value_for_string(self, mock_generate_constant_list):
         hook_method_blocks = [
             MethodBlock(
                 name="setUp",
@@ -177,18 +161,18 @@ class TestGenerateConstants(TestCase):
             )
         ]
         result = hook_test_generator.generate_constants(hook_method_blocks, [])
-        self.assertEqual(
-            [
-                Constant(
-                    name="TEST_ARG3",
-                    value="'test-arg3'",
-                    kind=TypeBrick(kind="str", indexes=[]),
-                )
-            ],
-            result,
+        mock_generate_constant_list.assert_called_once_with(
+            {"arg3": TypeBrick(kind="str")}
         )
+        self.assertEqual("CONSTANTS", result)
 
-    def test_should_generate_value_for_optional_string(self):
+    @mock.patch(
+        f"{BASE_PATH}.constant_generator.generate_constant_list",
+        return_value="CONSTANTS",
+    )
+    def test_should_generate_value_for_optional_string(
+        self, mock_generate_constant_list
+    ):
         hook_method_blocks = [
             MethodBlock(
                 name="setUp",
@@ -208,16 +192,10 @@ class TestGenerateConstants(TestCase):
             )
         ]
         result = hook_test_generator.generate_constants(hook_method_blocks, [])
-        self.assertEqual(
-            [
-                Constant(
-                    name="TEST_ARG3",
-                    value="'test-arg3'",
-                    kind=TypeBrick(kind="str", indexes=[]),
-                )
-            ],
-            result,
+        mock_generate_constant_list.assert_called_once_with(
+            {"arg3": TypeBrick(kind="Optional", indexes=[TypeBrick(kind="str")])}
         )
+        self.assertEqual("CONSTANTS", result)
 
 
 class TestGenerateTestMethodForClientCall(TestCase):
