@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import re
 import textwrap
-from typing import List
+from typing import List, Optional
+from airflow_munchkin.discovery_parser.utils import camel_to_snake
 
 
 def wrap_text(paragraphs: List[str], width: int, deindent_first: bool = False) -> str:
@@ -30,3 +32,32 @@ def to_class_name(module_name: str) -> str:
 def to_package_name(module_name: str) -> str:
     package, _, _ = module_name.rpartition(".")
     return package
+
+
+def snake(text: str) -> str:
+    return camel_to_snake(text)
+
+
+def howto(class_name: str) -> str:
+    return "howto_{}".format(camel_to_snake(class_name))
+
+
+def python(variable: Optional[str]) -> Optional[str]:
+    return "'{}'".format(variable) if isinstance(variable, str) else variable
+
+
+def test_constant(param_name: str, param_type: str):
+    match = re.findall(r"Optional\[([a-z]+)\]", param_type)
+    if match:
+        param_type = match[0]
+    if param_type == "str":
+        return param_name.upper()
+    if param_type == "int":
+        return 42
+    if param_type == "bool":
+        return True
+    if param_type == "float":
+        return 3.1415
+    if "Dict" in param_type:
+        return {"body": "test"}
+    return " # TODO "

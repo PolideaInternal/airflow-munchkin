@@ -48,3 +48,9 @@ def format_with_black(output_file_name: str) -> None:
 
 def sort_imports(output_file_name: str) -> None:
     SortImports(output_file_name)
+
+
+def apply_cosmetics(output_file_name: str) -> None:
+    format_with_black(output_file_name)
+    sort_imports(output_file_name)
+    remove_unused_imports(output_file_name)
