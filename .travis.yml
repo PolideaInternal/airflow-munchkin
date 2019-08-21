@@ -1,14 +1,26 @@
 # Config file for automatic testing at travis-ci.org
-
+dist: xenial
 language: python
-python:
-  - 3.6
-  - 3.5
-  - 3.4
-  - 2.7
+cache:
+    pip: true
 
-# Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -U tox-travis
+matrix:
+    include:
+        - python: '3.6'
+#        - python: '3.7'
+#        - python: '3.7-dev'
+#        - python: '3.8-dev'
+#    allow_failures:
+#        - python: '3.7-dev'
+#        - python: '3.8-dev'
 
-# Command to run tests, e.g. python setup.py test
-script: tox
+branches:
+    only:
+        - master
+
+install:
+    - python setup.py develop
+    - pip install -r requirements_dev.txt
+
+script:
+    - pre-commit run --all-files
