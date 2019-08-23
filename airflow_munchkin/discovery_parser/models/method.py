@@ -46,6 +46,4 @@ class Method(NamedTuple):
         if method["httpMethod"] == "POST":
             params.append(BODY_PARAM)
         params.sort(key=lambda p: p.required, reverse=True)
-        return cls(
-            name=name.capitalize(), params=params, description=[method["description"]]
-        )
+        return cls(name=name, params=params, description=[method["description"]])

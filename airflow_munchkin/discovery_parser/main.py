@@ -19,10 +19,10 @@ def main() -> None:
 
     service_name = "SearchAds"
     integration = DiscoveryIntegration(
-        api_path="doubleclicksearch.reports",
-        version="v2",
+        api_path="dfareporting.accountUserProfiles.insert",
+        version="v3.2",
         service_name=service_name,
-        object_name="Report",
+        object_name="Profile",
         package_name=resolve_package_name(service_name),
     )
     endp = Endpoint(integration)

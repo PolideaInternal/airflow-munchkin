@@ -45,7 +45,7 @@ class Operator(NamedTuple):
         name = (
             endpoint.integration.class_prefix
             + endpoint.integration.service_name
-            + method.name
+            + method.name.capitalize()
             + endpoint.integration.object_name
             + "Operator"
         )
