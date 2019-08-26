@@ -17,9 +17,6 @@ class {{ operator.class_name }}(BaseOperator):
 """
 template_fields = ({% for field in operator.template_fields %}"{{ field }}", {% endfor %})
 
-google_api_service_name = "{{ operator.google_api_service_name }}"
-google_api_endpoint_path = "{{ operator.google_api_endpoint_path }}"
-
 {% include 'code_blocks/decorator_apply_defaults.py.tpl' %}
 
 def __init__(
@@ -37,24 +34,24 @@ super().__init__(*args, **kwargs)
 {% for param in operator.params %}
 self.{{ param.pythonic_name }} = {{ param.pythonic_name }}
 {% endfor %}
-self.data = {
-{% filter indent(4, True) %}
-{% for param in operator.data_params %}
-"{{ param.name }}": {{ param.pythonic_name }},
-{% endfor %}
-{% endfilter %}
-}
 {% endfilter %}
 
 def execute(self, context):
 {% filter indent(4, True) %}
-hook = GoogleDiscoveryApiHook(
+hook = {{ operator.hook_class  }}(
     gcp_conn_id=self.gcp_conn_id,
     delegate_to=self.delegate_to,
-    api_service_name=self.google_api_service_name,
     api_version=self.api_version,
 )
-response = hook.query(endpoint=self.google_api_endpoint_path, data=self.data)
+response = hook.{{ operator.method.name | snake }}(
+{% filter indent(4, True) %}
+{% for param in operator.params %}
+{% if param.pythonic_name not in ('api_version', 'gcp_conn_id', 'delegate_to') %}
+{{ param.pythonic_name }}=self.{{ param.pythonic_name }},
+{% endif %}
+{% endfor %}
+{% endfilter %}
+)
 return response
 {% endfilter %}
 {% endfilter %}

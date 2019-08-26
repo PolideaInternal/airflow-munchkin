@@ -14,22 +14,26 @@ from airflow_munchkin.discovery_parser.models.endpoint import Endpoint
 
 class Operator(NamedTuple):
     class_name: str
+    hook_class: str
     description: List[str]
     template_fields: List[str]
     params: List[Parameter]
     data_params: List[Parameter]
-    google_api_endpoint_path: str
-    google_api_service_name: str
+    google_api_version: str
+    resource_name: str
+    method: Method
     """
     Representation of a Operator
 
     :param class_name: name of the operator class
+    :param hook_class
     :param description: description of the operator
     :param template_fields: list of template fields
     :param params: list of parameters that could be passed to the operator
     :param data_params: list of params that could be passed to discovery request
-    :param google_api_endpoint_path: discovery API path for a method ex. `dfareporting.campaigns.insert`
-    :param google_api_service_name: API service name ex. `dfareporting`
+    :param google_api_version: version of the API
+    :param resource_name: name of the resource
+    :param method: Method of the operator
     """
 
     @classmethod
@@ -49,16 +53,18 @@ class Operator(NamedTuple):
             + endpoint.integration.object_name
             + "Operator"
         )
+
+        hook_class = endpoint.integration.service_name + "Hook"
         return cls(
             class_name=name,
+            hook_class=hook_class,
             description=method.description,
             template_fields=[n.pythonic_name for n in method.params],
             params=params,
             data_params=method.params,
-            google_api_endpoint_path=".".join(
-                [endpoint.service, endpoint.resource_name, method.name]
-            ),
-            google_api_service_name=endpoint.service,
+            google_api_version=endpoint.integration.version,
+            method=method,
+            resource_name=endpoint.resource_name,
         )
 
 

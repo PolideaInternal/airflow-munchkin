@@ -3,6 +3,8 @@ import logging
 
 from airflow_munchkin.discovery_parser.models import DiscoveryIntegration, Endpoint
 from airflow_munchkin.discovery_parser.generators import (
+    generate_hook,
+    generate_hook_tests,
     generate_operators,
     generate_tests,
     generate_integration_rst,
@@ -19,7 +21,7 @@ def main() -> None:
 
     service_name = "SearchAds"
     integration = DiscoveryIntegration(
-        api_path="dfareporting.accountUserProfiles.insert",
+        api_path="dfareporting.accountUserProfiles",
         version="v3.2",
         service_name=service_name,
         object_name="Profile",
@@ -30,6 +32,8 @@ def main() -> None:
     logging.info("Parsing endpoint to operators")
     operators = endpoint_to_operators(endp)
 
+    generate_hook(integration, operators, endp)
+    generate_hook_tests(integration, operators)
     generate_operators(integration, operators)
     generate_tests(integration, operators)
     generate_integration_rst(integration, operators)

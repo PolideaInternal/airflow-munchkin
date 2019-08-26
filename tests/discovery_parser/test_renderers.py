@@ -4,6 +4,7 @@ from unittest import TestCase, mock
 from airflow_munchkin.discovery_parser.models import (
     Operator,
     Parameter,
+    Method,
     DiscoveryIntegration,
 )
 from airflow_munchkin.discovery_parser.renderers import (
@@ -27,14 +28,17 @@ class TestRenderers(TestCase):
             Parameter("param1", "str", ["Param 1 description"], True),
             Parameter("param2", "int", ["Param 2 description"], False),
         ]
+        method = Method("magic", ["Performs magic tasks in cloud."], params)
         self.op = Operator(
             class_name="ClassName",
             description=["some nice description"],
             template_fields=["field1", "field2"],
             params=params,
             data_params=params,
-            google_api_endpoint_path="service.method.path",
-            google_api_service_name="service",
+            hook_class="HookClass",
+            google_api_version="v1000",
+            resource_name="resource",
+            method=method,
         )
         self.integration = DiscoveryIntegration(
             api_path="service.method",
@@ -62,9 +66,6 @@ class TestRenderers(TestCase):
     """
     template_fields = ("field1", "field2", )
 
-    google_api_service_name = "service"
-    google_api_endpoint_path = "service.method.path"
-
     @apply_defaults
     def __init__(
         self,
@@ -76,19 +77,17 @@ class TestRenderers(TestCase):
         super().__init__(*args, **kwargs)
         self.param1 = param1
         self.param2 = param2
-        self.data = {
-            "param1": param1,
-            "param2": param2,
-        }
 
     def execute(self, context):
-        hook = GoogleDiscoveryApiHook(
+        hook = HookClass(
             gcp_conn_id=self.gcp_conn_id,
             delegate_to=self.delegate_to,
-            api_service_name=self.google_api_service_name,
             api_version=self.api_version,
         )
-        response = hook.query(endpoint=self.google_api_endpoint_path, data=self.data)
+        response = hook.magic(
+            param1=self.param1,
+            param2=self.param2,
+        )
         return response
 '''
         self.assertEqual(expected, content)
@@ -120,13 +119,13 @@ class TestRenderers(TestCase):
 # specific language governing permissions and limitations
 # under the License.
 """
-This module contains TestService operators.
+This module contains Google TestService operators.
 """
 from typing import Tuple, List, Any, Dict, Optional
 
 from airflow.utils.decorators import apply_defaults
 from airflow.models.baseoperator import BaseOperator
-from airflow.contrib.hooks.google_discovery_api_hook import GoogleDiscoveryApiHook
+from airflow.gcp.hooks.test import HookClass
 
 
 XXX
@@ -139,13 +138,11 @@ XXX
     def test_render_single_test(self):
         content = render_single_test(self.op, "file_name")
         expected = """class TestClassName(TestCase):
-    @mock.patch('airflow.gcp.operators.file_name.GoogleDiscoveryApiHook', )
+    @mock.patch('airflow.gcp.operators.file_name.HookClass', )
     @mock.patch('airflow.gcp.operators.file_name.BaseOperator', )
-    def test_execute(self, base_op_mock, discovery_hook_mock):
+    def test_execute(self, base_op_mock, hook_mock):
         param1 = 'PARAM1'
         param2 = 42
-        api_service_name = 'service'
-        api_path_name = 'service.method.path'
         op = ClassName(
     param1=param1,
     param2=param2,
@@ -153,18 +150,14 @@ XXX
             task_id="test_task"
         )
         op.execute(context=None)
-        discovery_hook_mock.assert_called_once_with(
+        hook_mock.assert_called_once_with(
             gcp_conn_id=GCP_CONN_ID,
             delegate_to=None,
-            api_service_name=api_service_name,
             api_version=API_VERSION,
         )
-        data = {
-              "param1": param1,
-              "param2": param2,
-        }
-        discovery_hook_mock.return_value.query.assert_called_once_with(
-            endpoint=api_path_name, data=data
+        hook_mock.return_value.magic.assert_called_once_with(
+            param1 = param1,
+            param2 = param2,
         )
 """
         self.assertEqual(expected, content)
@@ -175,7 +168,25 @@ XXX
     )
     def test_render_tests(self, render_single_mock):  # pylint:disable=unused-argument
         content = render_tests([self.op, self.op], "package_name")
-        expected = """from unittest import TestCase, mock
+        expected = """# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+from unittest import TestCase, mock
 from airflow.gcp.operators.package_name import (ClassName, ClassName, )
 
 API_VERSION = 'api_version'
@@ -237,7 +248,7 @@ class TestServiceSystemTest(DagGcpSystemTestCase):
     some nice description
 
 
-They also use :class:`airflow.contrib.hooks.google_discovery_api_hook.GoogleDiscoveryApiHook` to communicate with Google Cloud Platform."""  # noqa
+They also use :class:`airflow.gcp.hooks.test.HookClass` to communicate with Google Cloud Platform."""  # noqa
         self.assertEqual(expected, content)
 
     def test_render_single_example_op(self):

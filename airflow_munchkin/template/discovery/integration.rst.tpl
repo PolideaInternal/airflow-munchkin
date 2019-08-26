@@ -7,4 +7,4 @@
 
 {% endfor %}
 
-They also use :class:`airflow.contrib.hooks.google_discovery_api_hook.GoogleDiscoveryApiHook` to communicate with Google Cloud Platform.
+They also use :class:`airflow.gcp.hooks.{{ integration.package_name }}.{{ operators[0].hook_class }}` to communicate with Google Cloud Platform.
