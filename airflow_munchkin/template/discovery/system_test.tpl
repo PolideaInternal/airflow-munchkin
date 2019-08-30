@@ -1,5 +1,3 @@
-{% include 'discovery/license.tpl' %}
-
 import unittest
 from tests.contrib.utils.base_gcp_system_test_case import SKIP_TEST_WARNING, DagGcpSystemTestCase
 from tests.contrib.utils.gcp_authenticator import {{ key }}

@@ -1,5 +1,3 @@
-{% include 'discovery/license.tpl' %}
-
 """
 This module contains Google {{ integration.service_name  }} operators.
 """

@@ -1,5 +1,3 @@
-{% include 'discovery/license.tpl' %}
-
 """
 Example Airflow DAG that shows how to use {{ integration.service_name }}.
 """

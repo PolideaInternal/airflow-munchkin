@@ -2,7 +2,7 @@ class Test{{ operator.class_name }}(TestCase):
 {% filter indent(4, True) %}
 @mock.patch('airflow.gcp.operators.{{ package_name }}.{{ operator.hook_class }}', )
 @mock.patch('airflow.gcp.operators.{{ package_name }}.BaseOperator', )
-def test_execute(self, base_op_mock, hook_mock):
+def test_execute(self, mock_base_op, hook_mock):
     {% for param in operator.params %}
     {% if param.pythonic_name not in ('api_version', 'gcp_conn_id', 'delegate_to') %}
     {{ param.pythonic_name }} = {{  param.pythonic_name | test_constant(param.kind) | python }}

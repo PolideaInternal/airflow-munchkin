@@ -13,7 +13,6 @@ class {{ operator.class_name }}(BaseOperator):
     :type {{ param.pythonic_name }}: {{ param.kind }}
 {% endif %}
 {% endfor %}
-
 """
 template_fields = ({% for field in operator.template_fields %}"{{ field }}", {% endfor %})
 

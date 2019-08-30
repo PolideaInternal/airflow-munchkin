@@ -1,5 +1,3 @@
-{% include 'discovery/license.tpl' %}
-
 """
 This module contains Google {{ integration.service_name  }} hook.
 """
@@ -24,7 +22,6 @@ gcp_conn_id: str = 'google_cloud_default',
 delegate_to: str = None) -> None:
 super().__init__(gcp_conn_id, delegate_to)
 self.api_version = api_version
-self.num_retries = self._get_field('num_retries', 5)  # type: int
 {% endfilter %}
 
 def get_conn(self):

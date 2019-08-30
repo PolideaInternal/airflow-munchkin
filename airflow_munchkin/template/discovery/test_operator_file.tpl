@@ -1,5 +1,3 @@
-{% include 'discovery/license.tpl' %}
-
 from unittest import TestCase, mock
 from airflow.gcp.operators.{{ package_name }} import ({% for op in operators %}{{ op.class_name }}, {% endfor %})
 

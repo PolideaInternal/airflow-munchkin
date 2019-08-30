@@ -62,7 +62,6 @@ class TestRenderers(TestCase):
     :type param1: str
     :param param2: Param 2 description
     :type param2: int
-
     """
     template_fields = ("field1", "field2", )
 
@@ -100,25 +99,7 @@ class TestRenderers(TestCase):
         self, render_single_mock
     ):  # pylint:disable=unused-argument
         content = render_operators(self.integration, [self.op, self.op])
-        expected = '''# -*- coding: utf-8 -*-
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-"""
+        expected = '''"""
 This module contains Google TestService operators.
 """
 from typing import Tuple, List, Any, Dict, Optional
@@ -140,7 +121,7 @@ XXX
         expected = """class TestClassName(TestCase):
     @mock.patch('airflow.gcp.operators.file_name.HookClass', )
     @mock.patch('airflow.gcp.operators.file_name.BaseOperator', )
-    def test_execute(self, base_op_mock, hook_mock):
+    def test_execute(self, mock_base_op, hook_mock):
         param1 = 'PARAM1'
         param2 = 42
         op = ClassName(
@@ -168,25 +149,7 @@ XXX
     )
     def test_render_tests(self, render_single_mock):  # pylint:disable=unused-argument
         content = render_tests([self.op, self.op], "package_name")
-        expected = """# -*- coding: utf-8 -*-
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-from unittest import TestCase, mock
+        expected = """from unittest import TestCase, mock
 from airflow.gcp.operators.package_name import (ClassName, ClassName, )
 
 API_VERSION = 'api_version'
@@ -202,25 +165,7 @@ XXX
 
     def test_render_system_test(self):
         content = render_system_test(self.integration)
-        expected = """# -*- coding: utf-8 -*-
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-import unittest
+        expected = """import unittest
 from tests.contrib.utils.base_gcp_system_test_case import SKIP_TEST_WARNING, DagGcpSystemTestCase
 from tests.contrib.utils.gcp_authenticator import GCP_TESTSERVICE_KEY
 
@@ -253,12 +198,12 @@ They also use :class:`airflow.gcp.hooks.test.HookClass` to communicate with Goog
 
     def test_render_single_example_op(self):
         content = render_single_example_op(self.op)
-        expected = """# [START howto_class_name ]
+        expected = """# [START howto_class_name]
 class_name_task = ClassName(
     param1=param1,
     task_id="class_name_task",
 )
-# [END howto_class_name ]"""
+# [END howto_class_name]"""
         self.assertEqual(expected, content)
 
     @mock.patch(
@@ -269,25 +214,7 @@ class_name_task = ClassName(
         self, render_single_mock
     ):  # pylint:disable=unused-argument
         content = render_examples([self.op, self.op], self.integration)
-        expected = '''# -*- coding: utf-8 -*-
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-"""
+        expected = '''"""
 Example Airflow DAG that shows how to use TestService.
 """
 
@@ -313,24 +240,7 @@ with models.DAG(
 
     def test_render_howto(self):
         content = render_howto([self.op], self.integration)
-        expected = """..  Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-..    http://www.apache.org/licenses/LICENSE-2.0
-
-..  Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
-
-Google TestService Operators
+        expected = """Google TestService Operators
 =======================================
 
 Here goes a copy pasted text from service website.
@@ -351,7 +261,7 @@ A section title
 
 Here describe how to use :class:`~airflow.gcp.operators.test.ClassName`.
 
-.. exampleinclude:: ../../../../airflow/gxp/example_dags/example_test.py
+.. exampleinclude:: ../../../../airflow/gcp/example_dags/example_test.py
     :language: python
     :dedent: 4
     :start-after: [START howto_class_name]
