@@ -76,8 +76,8 @@ It's a very simple. Here is step by step guide:
 
 .. _Munchkin for client:
 
-Munchkin for client
-^^^^^^^^^^^^^^^^^^^
+Munchkin for Google CLoud libraries
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Generator for Python clients is located under `airflow_munchkin.main_client`. To use it you have to modify
 the Integration information in `main` function:
 
@@ -95,8 +95,8 @@ you can define class and file prefixes and service name.
 
 .. _Munchkin for discovery:
 
-Munchkin for discovery
-^^^^^^^^^^^^^^^^^^^^^^
+Munchkin for Google APIs Python Client
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Generator for Discovery API is located under ``airflow_munchkin.main_discovery``. To use it you have to modify
 the Integration information in ``main`` function:
 
