@@ -72,12 +72,12 @@ class TestRenderers(TestCase):
         param2: int = None,
         *args,
         **kwargs
-    ):
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.param1 = param1
         self.param2 = param2
 
-    def execute(self, context):
+    def execute(self, context: Dict):
         hook = HookClass(
             gcp_conn_id=self.gcp_conn_id,
             delegate_to=self.delegate_to,

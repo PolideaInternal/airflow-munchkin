@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-
-"""Main module."""
+"""
+This module contains code generator for hooks and operators based
+on Google Python client libraries.
+"""
 import logging
 from typing import List
 

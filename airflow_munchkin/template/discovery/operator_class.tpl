@@ -27,7 +27,7 @@ self,
 *args,
 **kwargs
 {% endfilter %}
-):
+) -> None:
 {% filter indent(4, True) %}
 super().__init__(*args, **kwargs)
 {% for param in operator.params %}
@@ -35,7 +35,7 @@ self.{{ param.pythonic_name }} = {{ param.pythonic_name }}
 {% endfor %}
 {% endfilter %}
 
-def execute(self, context):
+def execute(self, context: Dict):
 {% filter indent(4, True) %}
 hook = {{ operator.hook_class  }}(
     gcp_conn_id=self.gcp_conn_id,
