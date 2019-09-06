@@ -64,21 +64,21 @@ Munchkin does not perform the interesting part of implementing an operator which
 
 How to use Munchkin
 -------------------
-It's a very simple. Here is step by step guide:
+It's very simple. Here is a step by step guide:
 
 - Select a Google service
 
-- Determine if the service has Python client (you can check it `here <https://google-cloud.readthedocs.io/en/latest/index.html>`_)
+- Determine if the service has a Python client (you can check it `here <https://google-cloud.readthedocs.io/en/latest/index.html>`_)
 
-- If a client exist and it has method you want to use then you should use `Munchkin for client`_
+- If a client exist and it has a method you want to use then you should use `Munchkin for client`_
 
-- If there's no python client then the operators will be based on `Discovery API <https://developers.google.com/discovery/>`_ in this case you have to determine the API endpoint using `the explorer <https://developers.google.com/apis-explorer/#p/>`_. If you can't find the service, use Google to find `myService API` to determine the path used in REST requests. Finally use `Munchkin for discovery`_.
+- If there's no Python client then the operators will be based on the `Discovery API <https://developers.google.com/discovery/>`_ - in this case you have to determine the API endpoint using `the explorer <https://developers.google.com/apis-explorer/#p/>`_. If you can't find the service, use Google to find `myService API` to determine the path used in REST requests. Finally use `Munchkin for discovery`_.
 
 .. _Munchkin for client:
 
-Munchkin for Google CLoud libraries
+Munchkin for Google Cloud libraries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Generator for Python clients is located under `airflow_munchkin.main_client`. To use it you have to modify
+Generator for Python clients is located under ``airflow_munchkin.main_client``. To use it you have to modify
 the Integration information in `main` function:
 
 .. code-block:: python
