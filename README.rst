@@ -6,8 +6,8 @@ Airflow Munchkin
 .. image:: https://img.shields.io/pypi/v/airflow_munchkin.svg
         :target: https://pypi.python.org/pypi/airflow_munchkin
 
-.. image:: https://img.shields.io/travis/PolideaInternal/airflow_munchkin.svg
-        :target: https://travis-ci.org/PolideaInternal/airflow_munchkin
+.. image:: https://travis-ci.com/PolideaInternal/airflow-munchkin.svg?branch=master
+        :target: https://travis-ci.com/PolideaInternal/airflow-munchkin
 
 .. image:: https://readthedocs.org/projects/airflow-munchkin/badge/?version=latest
         :target: https://airflow-munchkin.readthedocs.io/en/latest/?badge=latest
