@@ -23,4 +23,4 @@ install:
     - pip install -r requirements_dev.txt
 
 script:
-    - pre-commit run --all-files
+    - pre-commit run --all-files --show-diff-on-failure
