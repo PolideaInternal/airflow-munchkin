@@ -3,7 +3,7 @@ This module contains Google {{ integration.service_name  }} hook.
 """
 from typing import Tuple, List, Any, Dict, Optional
 
-from googleapiclient.discovery import build
+from googleapiclient.discovery import build, Resource
 
 from airflow.contrib.hooks.gcp_api_base_hook import GoogleCloudBaseHook
 
@@ -12,7 +12,7 @@ class {{ integration.service_name  }}Hook(GoogleCloudBaseHook):
 """
 Hook for Google {{ integration.service_name }}.
 """
-_conn = None  # type: Optional[Any]
+_conn = None  # type: Optional[Resource]
 
 def __init__(
 {% filter indent(4, True) %}
@@ -24,7 +24,7 @@ super().__init__(gcp_conn_id, delegate_to)
 self.api_version = api_version
 {% endfilter %}
 
-def get_conn(self):
+def get_conn(self) -> Resource:
 {% filter indent(4, True) %}
 """
 Retrieves connection to {{ integration.service_name }}.

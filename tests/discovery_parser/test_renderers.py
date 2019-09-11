@@ -166,12 +166,12 @@ XXX
     def test_render_system_test(self):
         content = render_system_test(self.integration)
         expected = """import unittest
-from tests.contrib.utils.base_gcp_system_test_case import SKIP_TEST_WARNING, DagGcpSystemTestCase
+from tests.contrib.utils.base_gcp_system_test_case import SKIP_TEST_WARNING, TestDagGcpSystem
 from tests.contrib.utils.gcp_authenticator import GCP_TESTSERVICE_KEY
 
 
-@unittest.skipIf(DagGcpSystemTestCase.skip_check(GCP_TESTSERVICE_KEY), SKIP_TEST_WARNING)
-class TestServiceSystemTest(DagGcpSystemTestCase):
+@unittest.skipIf(TestDagGcpSystem.skip_check(GCP_TESTSERVICE_KEY), SKIP_TEST_WARNING)
+class TestServiceSystemTest(TestDagGcpSystem):
     def __init__(self, method_name="runTest"):
         super().__init__(
             method_name, dag_id="example_test", gcp_key=GCP_TESTSERVICE_KEY
