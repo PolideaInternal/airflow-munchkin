@@ -25,6 +25,11 @@ class CloudRedisClient:
     ):
         """DOCSTRING"""
 
+    def get_instance(  # pylint: disable=too-many-arguments, unused-argument, no-self-use
+        self, parent, insstance, page_size=None, retry=None, timeout=None, metadata=None
+    ):
+        return None
+
 
 class TestParsePathMethod(TestCase):
     def test_should_parse_location(self):
@@ -36,43 +41,47 @@ class TestParsePathMethod(TestCase):
 
 
 class TestParseActionMethod(TestCase):
+    parse_docstring_return_value = [
+        SectionBrick(kind="Text", body=["TEXT1"]),
+        SectionBrick(
+            kind="Args",
+            body=[
+                FieldBrick(
+                    name="parent",
+                    type_brick=TypeBrick(kind="str", indexes=[]),
+                    desc=[SectionBrick(kind="Text", body=["TEXT2"])],
+                ),
+                FieldBrick(
+                    name="instance_id",
+                    type_brick=TypeBrick(kind="str", indexes=[]),
+                    desc=[SectionBrick(kind="Text", body=["TEXT3"])],
+                ),
+            ],
+        ),
+        SectionBrick(
+            kind="Returns",
+            body=[
+                FieldBrick(
+                    name="",
+                    type_brick=None,
+                    desc=[
+                        SectionBrick(
+                            kind="Text",
+                            body=[
+                                "A :class:`~google.cloud.redis_v1.types._OperationFuture` instance."
+                            ],
+                        )
+                    ],
+                )
+            ],
+        ),
+    ]
+
     @mock.patch("airflow_munchkin.client_parser.cloud_client_parser.docstring_parser")
     def test_should_parse_redis_update_instance(self, mock_docstring_parser):
-        mock_docstring_parser.parse_docstring.return_value = [
-            SectionBrick(kind="Text", body=["TEXT1"]),
-            SectionBrick(
-                kind="Args",
-                body=[
-                    FieldBrick(
-                        name="parent",
-                        type_brick=TypeBrick(kind="str", indexes=[]),
-                        desc=[SectionBrick(kind="Text", body=["TEXT2"])],
-                    ),
-                    FieldBrick(
-                        name="instance_id",
-                        type_brick=TypeBrick(kind="str", indexes=[]),
-                        desc=[SectionBrick(kind="Text", body=["TEXT3"])],
-                    ),
-                ],
-            ),
-            SectionBrick(
-                kind="Returns",
-                body=[
-                    FieldBrick(
-                        name="",
-                        type_brick=None,
-                        desc=[
-                            SectionBrick(
-                                kind="Text",
-                                body=[
-                                    "A :class:`~google.cloud.redis_v1.types._OperationFuture` instance."
-                                ],
-                            )
-                        ],
-                    )
-                ],
-            ),
-        ]
+        mock_docstring_parser.parse_docstring.return_value = (
+            self.parse_docstring_return_value
+        )
         target_fn = CloudRedisClient.list_instances
         result = cloud_client_parser.parse_action_method("update_instance", target_fn)
         mock_docstring_parser.parse_docstring.assert_called_once_with("DOCSTRING")
@@ -99,6 +108,20 @@ class TestParseActionMethod(TestCase):
             ),
             result,
         )
+
+    @mock.patch("airflow_munchkin.client_parser.cloud_client_parser.docstring_parser")
+    def test_should_parse_redis_get_instance_with_no_docstring(
+        self, mock_docstring_parser
+    ):
+        mock_docstring_parser.parse_docstring.return_value = (
+            self.parse_docstring_return_value
+        )
+        target_fn = CloudRedisClient.get_instance
+        result = cloud_client_parser.parse_action_method("get_instance", target_fn)
+        mock_docstring_parser.parse_docstring.assert_called_once_with(
+            "None # TODO: Fill missing value"
+        )
+        self.assertIsNotNone(result)
 
 
 class TestParseClient(TestCase):
@@ -128,7 +151,10 @@ class TestParseClient(TestCase):
             ClientInfo(
                 ctor_method="ACTION_METHOD_INFO",
                 path_methods={"location_path": "PATH_METHOD_INFO"},
-                action_methods={"list_instances": "ACTION_METHOD_INFO"},
+                action_methods={
+                    "get_instance": "ACTION_METHOD_INFO",
+                    "list_instances": "ACTION_METHOD_INFO",
+                },
             ),
             result,
         )

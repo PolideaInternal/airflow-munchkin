@@ -20,7 +20,8 @@ def parse_path_method(name: str, method: Callable) -> PathInfo:
 
 def parse_action_method(name: str, method: Callable) -> ActionInfo:
     docstring = method.__doc__
-    assert docstring is not None
+    if docstring is None:
+        docstring = "None # TODO: Fill missing value"
 
     doc_sections = docstring_parser.parse_docstring(docstring)
     desc: Optional[List[str]] = None
