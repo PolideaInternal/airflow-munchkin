@@ -15,7 +15,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/PolideaInternal/airflow_munchkin/issues.
+Report bugs at https://github.com/PolideaInternal/airflow/issues.
 
 If you are reporting a bug, please include:
 
