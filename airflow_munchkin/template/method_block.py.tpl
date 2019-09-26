@@ -8,9 +8,7 @@
 {% for decorator_block in decorator_blocks -%}
 {{ decorator_block }}
 {% endfor %}
-def {{ name }}(self, {{ arguments_list(args) }}):
-{# TODO: Implement return_kind#}
-{#-> {{ return_kind }}:#}
+def {{ name }}(self, {{ arguments_list(args) }}){% if return_kind %} -> {{ return_kind }} {% endif %}:
 {% if desc %}
 {% filter indent(4, true) -%}
 """
