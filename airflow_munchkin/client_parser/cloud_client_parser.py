@@ -65,7 +65,7 @@ def parse_client(clazz_name: str) -> ClientInfo:
     functions = inspect.getmembers(clazz, predicate=inspect.isfunction)
     path_methods = {
         name: parse_path_method(name, method)
-        for name, method in methods
+        for name, method in methods + functions
         if name.endswith("_path")
     }
     action_methods = {

@@ -20,10 +20,19 @@ class ImportGather(BlockVisitor):
         self.remember_import_statement(class_block.extend_class)
 
     def remember_import_statement(self, statement: str) -> None:
-        if statement in ("str", "float", "str", "int", "dict", "None"):
+        if statement in ("str", "float", "str", "int", "dict", "None", "bool"):
             return
 
-        if statement in ("Sequence", "Union", "Optional", "Tuple", "Dict"):
+        if statement in (
+            "Sequence",
+            "Union",
+            "Optional",
+            "Tuple",
+            "Dict",
+            "List",
+            "Iterator",
+            "Iterable",
+        ):
             statement = f"typing.{statement}"
         self.import_statement.add(statement)
 

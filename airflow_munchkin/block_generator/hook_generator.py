@@ -72,7 +72,7 @@ def generate_get_conn_method_block(integration: Integration) -> MethodBlock:
     return method_block
 
 
-PATH_REGEXP = re.compile(r"``(?P<path>(?:[a-z{}_ ]+\/[a-z{}_ ]+)+)``")
+PATH_REGEXP = re.compile(r"`\"?(?P<path>(?:[a-z{}_ ]+\/[a-z{}_ ]+)+)\"?`")
 PATH_SEGMENT_REGEXP = re.compile(r"{([a-z_]+)}")
 
 
@@ -83,9 +83,8 @@ def find_matching_path_info(path: str, path_infos: Dict[str, PathInfo]) -> PathI
     for path_info in path_infos.values():
         if path_info.args == arguments:
             return path_info
-    raise GeneratorException(
-        f"The path could not be determined. Current path: '${path}'"
-    )
+
+    return PathInfo(name="TODO", args=arguments)
 
 
 def convert_path_parameter_block_to_individual_parameters(
@@ -103,7 +102,7 @@ def convert_path_parameter_block_to_individual_parameters(
     required_parameters: Dict[str, ParameterBlock] = {}
     call_args = []
 
-    for name in path_info.args:
+    for name in path_info.args:  # type: ignore
         if name == "project":
             optional_parameters["project_id"] = ParameterBlock(
                 name="project_id",
@@ -121,7 +120,7 @@ def convert_path_parameter_block_to_individual_parameters(
         template_name="call_path.py.tpl",
         template_params={
             "var_name": path_parameter.name,
-            "fn_name": path_info.name,
+            "fn_name": path_info.name,  # type: ignore
             "args": call_args,
             "client": integration.client_type_brick,
         },
