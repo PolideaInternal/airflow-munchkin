@@ -18,18 +18,10 @@ TEMPLATE_ENV = jinja2.Environment(
 
 # Load filters and functions
 TEMPLATE_ENV.filters.update(
-    {
-        name: fn
-        for name, fn in inspect.getmembers(jinja_filters, predicate=inspect.isfunction)
-    }
+    dict(inspect.getmembers(jinja_filters, predicate=inspect.isfunction))
 )
 TEMPLATE_ENV.globals.update(
-    {
-        name: fn
-        for name, fn in inspect.getmembers(
-            jinja_functions, predicate=inspect.isfunction
-        )
-    }
+    dict(inspect.getmembers(jinja_functions, predicate=inspect.isfunction))
 )
 
 

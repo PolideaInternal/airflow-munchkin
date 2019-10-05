@@ -40,18 +40,6 @@ repos:
     hooks:
       - id: check-hooks-apply
       - id: check-useless-excludes
-  - repo: git://github.com/luismayta/pre-commit-mypy
-    rev: 0.1.1
-    hooks:
-      - id: mypy
-        name: Checks typing annotations consistency with mypy
-        require_serial: true
-  - repo: https://github.com/pre-commit/mirrors-pylint
-    rev: v2.3.1
-    hooks:
-      - id: pylint
-        name: Checks for common programming errors with pylint
-        files: (airflow_munchkin|tests)/.+\.py$
   - repo: local
     hooks:
       - id: autoflake
@@ -61,6 +49,20 @@ repos:
         files: \.py$
         args: ['--in-place', '--remove-all-unused-imports',
                '--remove-unused-variable', '--recursive']
+      - id: pylint
+        name: Checks for common programming errors with pylint
+        language: python
+        entry: pylint
+        require_serial: true
+        files: (airflow_munchkin|tests)/.+\.py$
+      - id: mypy
+        name: Checks typing annotations consistency with mypy
+        language: python
+        entry: mypy
+        files: \.py$
+        exclude: ^docs/.*$
+        pass_filenames: true
+        require_serial: true
       - id: pytest
         name: pytest - run unit test
         entry: pytest
