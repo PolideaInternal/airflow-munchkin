@@ -72,7 +72,7 @@ def generate_get_conn_method_block(integration: Integration) -> MethodBlock:
     return method_block
 
 
-PATH_REGEXP = re.compile(r"``(?P<path>(?:[a-z{}_ ]+\/[a-z{}_ ]+)+)``")
+PATH_REGEXP = re.compile(r"`\"?(?P<path>(?:[a-z{}_ ]+\/[a-z{}_ ]+)+)\"?`")
 PATH_SEGMENT_REGEXP = re.compile(r"{([a-z_]+)}")
 
 
@@ -83,9 +83,8 @@ def find_matching_path_info(path: str, path_infos: Dict[str, PathInfo]) -> PathI
     for path_info in path_infos.values():
         if path_info.args == arguments:
             return path_info
-    raise GeneratorException(
-        f"The path could not be determined. Current path: '${path}'"
-    )
+
+    return PathInfo(name="TODO", args=arguments)
 
 
 def convert_path_parameter_block_to_individual_parameters(

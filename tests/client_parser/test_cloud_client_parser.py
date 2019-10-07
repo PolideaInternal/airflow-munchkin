@@ -20,6 +20,9 @@ class CloudRedisClient:
     def location_path(cls, project, location):
         """Return a fully-qualified location string."""
 
+    def _another_path(self, project=None, region=None):
+        """Return an another fully-qualified location string."""
+
     def list_instances(  # pylint: disable=too-many-arguments
         self, parent, page_size=None, retry=None, timeout=None, metadata=None
     ):
@@ -150,10 +153,14 @@ class TestParseClient(TestCase):
         self.assertEqual(
             ClientInfo(
                 ctor_method="ACTION_METHOD_INFO",
-                path_methods={"location_path": "PATH_METHOD_INFO"},
+                path_methods={
+                    "location_path": "PATH_METHOD_INFO",
+                    "_another_path": "PATH_METHOD_INFO",
+                },
                 action_methods={
                     "get_instance": "ACTION_METHOD_INFO",
                     "list_instances": "ACTION_METHOD_INFO",
+                    "_another_path": "ACTION_METHOD_INFO",
                 },
             ),
             result,
