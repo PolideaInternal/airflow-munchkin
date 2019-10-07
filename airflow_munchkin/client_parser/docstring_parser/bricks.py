@@ -67,9 +67,9 @@ class FieldBrick(NamedTuple):
     type_brick: Optional[TypeBrick]
     # Should be List[SectionBrick], but recursive types is not supported in mypy:
     # Issue: https://github.com/python/mypy/issues/731
-    desc: List[Any]  # type: ignore
+    desc: List[Any]
 
 
 class SectionBrick(NamedTuple):
     kind: str
-    body: Union[List[str], List[FieldBrick]]  # type: ignore
+    body: Union[List[str], List[FieldBrick]]

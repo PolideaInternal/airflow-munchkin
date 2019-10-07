@@ -102,7 +102,7 @@ def convert_path_parameter_block_to_individual_parameters(
     required_parameters: Dict[str, ParameterBlock] = {}
     call_args = []
 
-    for name in path_info.args:  # type: ignore
+    for name in path_info.args:
         if name == "project":
             optional_parameters["project_id"] = ParameterBlock(
                 name="project_id",
@@ -120,7 +120,7 @@ def convert_path_parameter_block_to_individual_parameters(
         template_name="call_path.py.tpl",
         template_params={
             "var_name": path_parameter.name,
-            "fn_name": path_info.name,  # type: ignore
+            "fn_name": path_info.name,
             "args": call_args,
             "client": integration.client_type_brick,
         },
