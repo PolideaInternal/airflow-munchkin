@@ -276,6 +276,122 @@ class TestConvertPathParameter(TestCase):
             code,
         )
 
+    def test_should_convert_with_double_quotes(self):
+        parameter = ParameterInfo(
+            name="parent",
+            kind=TypeBrick(kind="str", indexes=[]),
+            desc=[
+                "Required. The resource name of the instance location using the form: "
+                '``"projects/{project_id}/locations/{location_id}"`` where '
+                "``location_id`` refers to a GCP region"
+            ],
+        )
+        path_infos = {
+            "location": PathInfo(name="location", args=["project", "location"])
+        }
+        integration = Integration(
+            service_name="SERVICE_NAME",
+            class_prefix="CLASS_PREFIX",
+            file_prefix="FILE_PREFFIX",
+            client_path="CLOENT_PATH",
+        )
+        req_params, opt_params, code = hook_generator.convert_path_parameter_block_to_individual_parameters(
+            parameter, path_infos=path_infos, integration=integration
+        )
+
+        self.assertEqual(
+            {
+                "location": ParameterBlock(
+                    name="location",
+                    kind=TypeBrick(kind="str", indexes=[]),
+                    desc=["TODO: Fill description"],
+                    default_value=None,
+                )
+            },
+            req_params,
+        )
+        self.assertEqual(
+            {
+                "project_id": ParameterBlock(
+                    name="project_id",
+                    kind=TypeBrick(kind="str", indexes=[]),
+                    desc=["TODO: Fill description"],
+                    default_value="None",
+                )
+            },
+            opt_params,
+        )
+        self.assertEqual(
+            CodeBlock(
+                template_name="call_path.py.tpl",
+                template_params={
+                    "var_name": "parent",
+                    "fn_name": "location",
+                    "args": ["project_id", "location"],
+                    "client": TypeBrick(kind="CLOENT_PATH", indexes=[]),
+                },
+            ),
+            code,
+        )
+
+    def test_should_convert_with_not_matching_path_info(self):
+        parameter = ParameterInfo(
+            name="parent",
+            kind=TypeBrick(kind="str", indexes=[]),
+            desc=[
+                "Required. The resource name of the instance location using the form: "
+                "``projects/{project_id}/locations/{location_id}`` where "
+                "``locati`` refers to a GCP region"
+            ],
+        )
+        path_infos = {
+            "location": PathInfo(name="location", args=["not_project", "not_location"])
+        }
+        integration = Integration(
+            service_name="SERVICE_NAME",
+            class_prefix="CLASS_PREFIX",
+            file_prefix="FILE_PREFFIX",
+            client_path="CLOENT_PATH",
+        )
+        req_params, opt_params, code = hook_generator.convert_path_parameter_block_to_individual_parameters(
+            parameter, path_infos=path_infos, integration=integration
+        )
+
+        self.assertEqual(
+            {
+                "location": ParameterBlock(
+                    name="location",
+                    kind=TypeBrick(kind="str", indexes=[]),
+                    desc=["TODO: Fill description"],
+                    default_value=None,
+                )
+            },
+            req_params,
+        )
+        self.assertEqual(
+            {
+                "project_id": ParameterBlock(
+                    name="project_id",
+                    kind=TypeBrick(kind="str", indexes=[]),
+                    desc=["TODO: Fill description"],
+                    default_value="None",
+                )
+            },
+            opt_params,
+        )
+        self.assertEqual(
+            CodeBlock(
+                template_name="call_path.py.tpl",
+                template_params={
+                    "var_name": "parent",
+                    "fn_name": "TODO",
+                    "args": ["project_id", "location"],
+                    "client": TypeBrick(kind="CLOENT_PATH", indexes=[]),
+                },
+            ),
+            code,
+        )
+
 
 class TestGenerateClassBlock(TestCase):
     @mock.patch(
