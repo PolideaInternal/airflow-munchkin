@@ -38,7 +38,7 @@ class TypeHintParser:
         while self.hint_iter.has_next() and (
             self.hint_iter.peek().isalpha()
             or self.hint_iter.peek().isdigit()
-            or self.hint_iter.peek() in (".", "_")
+            or self.hint_iter.peek() in (".", "_", "|")
         ):
             kind += self.hint_iter.next()
         return kind
@@ -103,10 +103,29 @@ def replace_all_kind(typehint_element: TypeBrick, old: str, new: str):
     walk_recursive_and_replace(typehint_element)
 
 
+def replace_deprecated_union_style(typehint_element: TypeBrick):
+    def walk_recursive_and_replace(element: TypeBrick):
+        if not element.indexes and "|" in element.kind:
+            element.indexes = [
+                TypeBrick(kind=index.strip()) for index in element.kind.split("|")
+            ]
+            element.kind = "Union"
+        if element.indexes:
+            for child in element.indexes:
+                walk_recursive_and_replace(child)
+
+    walk_recursive_and_replace(typehint_element)
+
+
 def parse_typehint(text: str) -> TypeBrick:
     logging.info("Parsing typehint: %s", text)
     parser = TypeHintParser(text)
     assert parser.element is not None
     element = parser.element
+    replace_deprecated_union_style(element)
     replace_all_kind(element, "dict", "Dict")
+    replace_all_kind(element, "set", "Set")
+    replace_all_kind(element, "list", "List")
+    replace_all_kind(element, "iterator", "Iterator")
+
     return element
