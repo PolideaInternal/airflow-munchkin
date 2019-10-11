@@ -67,6 +67,23 @@ class TestTypeHintParser(unittest.TestCase):
             typehint_parser.parse_typehint("Union[Optional[dict]]"),
         )
 
+    def test_should_parse_deprecated_union_style(self):
+        self.assertEqual(
+            TypeBrick(
+                kind="Iterator",
+                indexes=[
+                    TypeBrick(
+                        kind="Union",
+                        indexes=[
+                            TypeBrick(kind="Dict", indexes=[]),
+                            TypeBrick(kind="Set", indexes=[]),
+                        ],
+                    )
+                ],
+            ),
+            typehint_parser.parse_typehint("iterator[dict|set]"),
+        )
+
     @parameterized.expand(
         [
             (TypeBrick(kind="str", indexes=[]), "str"),

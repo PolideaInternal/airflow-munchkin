@@ -29,6 +29,7 @@ class ImportGather(BlockVisitor):
             "Optional",
             "Tuple",
             "Dict",
+            "Set",
             "List",
             "Iterator",
             "Iterable",
