@@ -54,6 +54,13 @@ def render_class_block(class_block: ClassBlock) -> str:
         name=class_block.name,
         extend_class=class_block.extend_class,
         ctor_method=ctor_method_block,
+        ctor_method_desc_args=[
+            value
+            for key, value in ctor_method_block.args.items()
+            if key not in ("*args", "**kwargs")
+        ]
+        if ctor_method_block
+        else None,
         method_blocks=method_blocks,
     )
 
