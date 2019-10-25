@@ -4,7 +4,7 @@ class {{ name }}({{ extend_class | to_class_name }}):
 """
 {{ ctor_method.desc | wrap_text(106) }}
 
-{% for arg in ctor_method_desc_args %}
+{% for arg in ctor_method_args_docstring %}
 {{ rst_param(arg.name, arg.desc, 106) }}
 {% if arg.kind -%}
     :type {{ arg.name }}: {{ arg.kind.long_form  }}

@@ -122,7 +122,7 @@ class TestRenderClassBlock(TestCase):
         result = brushes.render_class_block(class_block)
         mock_render_template.assert_called_once_with(
             ctor_method=ctor_method,
-            ctor_method_desc_args=[],
+            ctor_method_args_docstring=[],
             extend_class="EXTEND_CLASS",
             method_blocks=[
                 "TEMPLATE_METHOD_BLOCK",
