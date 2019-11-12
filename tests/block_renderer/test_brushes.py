@@ -109,6 +109,7 @@ class TestRenderClassBlock(TestCase):
     def test_render_class_block(self, mock_render_template, mock_render_class_block):
         ctor_method = mock.MagicMock()
         ctor_method.name = "__init__"
+        ctor_method.args = {"*args": "ParameterBlock", "**kwargs": "ParameterBlock"}
         method_a = mock.MagicMock()
         method_a.name = "method_a"
         method_b = mock.MagicMock()
@@ -121,6 +122,7 @@ class TestRenderClassBlock(TestCase):
         result = brushes.render_class_block(class_block)
         mock_render_template.assert_called_once_with(
             ctor_method=ctor_method,
+            ctor_method_args_docstring=[],
             extend_class="EXTEND_CLASS",
             method_blocks=[
                 "TEMPLATE_METHOD_BLOCK",
