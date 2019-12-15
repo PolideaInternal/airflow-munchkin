@@ -136,12 +136,7 @@ class TestCreateOperatorClassBlock(TestCase):
                                 },
                             ),
                         ],
-                        decorator_blocks=[
-                            CodeBlock(
-                                template_name="decorator_apply_defaults.py.tpl",
-                                template_params={},
-                            )
-                        ],
+                        decorator_blocks=[],
                     ),
                 ],
             ),

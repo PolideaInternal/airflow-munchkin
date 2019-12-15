@@ -84,11 +84,7 @@ def create_operator_class_block(
                 },
             ),
         ],
-        decorator_blocks=[
-            CodeBlock(
-                template_name="decorator_apply_defaults.py.tpl", template_params={}
-            )
-        ],
+        decorator_blocks=[],
     )
     return ClassBlock(
         name=f"{integration.class_prefix}{utils.to_camel_case(hook_method.name)}Operator",
