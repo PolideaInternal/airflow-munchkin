@@ -62,14 +62,14 @@ def create_assert_call_method_block(
             CodeBlock(
                 template_name="method_call.py.tpl",
                 template_params={
-                    "target": f"task.execute",
+                    "target": "task.execute",
                     "call_params": {"context": "mock.MagicMock()"},
                 },
             ),
             CodeBlock(
                 template_name="method_call.py.tpl",
                 template_params={
-                    "target": f"mock_hook.assert_called_once_with",
+                    "target": "mock_hook.assert_called_once_with",
                     "call_params": {"gcp_conn_id": "TEST_GCP_CONN_ID"},
                 },
             ),
