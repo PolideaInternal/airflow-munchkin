@@ -12,7 +12,7 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 requirements = [
-    "apache-airflow==1.10.4rc3",
+    "apache-airflow==2.4.2",
     "Click>=6.0",
     "google-cloud-automl==0.4.0",
     "google-cloud-redis==0.2.1",
